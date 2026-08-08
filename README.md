@@ -1,9 +1,12 @@
 # postmortem
 
-A Windows CLI tool for diagnosing machine-check exceptions, unexplained
-reboots, and CPU stability problems. The binary is `pm.exe`.
+a windows cli tool made to debug and troubleshoot AMD Ryzen Zen3 CPUs, but can also be used for other CPU generations. An exact list of supported CPUs will come at some point.
 
-## The problem it solves
+## Will there be Linux support?
+At some point, when I have the time and the mood, I plan to add Linux support and expand general debug functions for other CPU generations and manufacturers. The ZEN 3 generation is currently mainly supported by AMD
+
+
+## The main problem it is supposed to solve or find
 
 A machine resets every week or two. There is no blue screen, no minidump, and
 nothing in `C:\Windows\Minidump`. Event Viewer shows Kernel-Power 41 with
@@ -51,24 +54,7 @@ Reading is a standard-user operation. Only `pm mitigate apply` and
 `pm mitigate revert` need an elevated prompt, and they say so rather than
 failing obscurely.
 
-## No kernel driver, ever
 
-Tools in this space usually reach for `WinRing0` or `InpOut32` to read MSRs
-directly. This one does not, and will not.
-
-Those drivers are on Microsoft's vulnerable-driver blocklist. They are signed,
-they accept arbitrary physical-memory and MSR access from any user-mode caller,
-and ransomware has used them to disable security products. HVCI and Smart App
-Control block them. Shipping one to diagnose a stability problem would trade a
-crash every ten days for a permanent local privilege-escalation primitive.
-
-It is also unnecessary. WHEA already captured the contents of `MCA_STATUS`,
-`MCA_ADDR` and `MCA_MISC` **at fault time** and wrote them to the event log.
-Reading the MSRs now would tell you what the registers hold today, which is not
-what you want to know. The event log is a better source, not a worse one.
-
-Everything here comes from documented Win32: the Windows Event Log API, SMBIOS
-via `GetSystemFirmwareTable`, the registry, `CPUID`, and `powrprof`.
 
 ## Commands
 
