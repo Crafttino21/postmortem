@@ -117,6 +117,7 @@ add_library(postmortem_core STATIC
     src/core/cpu/signature.cpp
     src/core/events/analysis.cpp
     src/core/events/event.cpp
+    src/core/events/grouping.cpp
     src/core/events/crash_timeline.cpp
     src/core/events/whea.cpp
     src/core/input/values.cpp

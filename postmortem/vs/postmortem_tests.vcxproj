@@ -30,6 +30,7 @@
     <ClCompile Include="..\tests\test_args.cpp" />
     <ClCompile Include="..\tests\test_cper.cpp" />
     <ClCompile Include="..\tests\test_events.cpp" />
+    <ClCompile Include="..\tests\test_grouping.cpp" />
     <ClCompile Include="..\tests\test_input.cpp" />
     <ClCompile Include="..\tests\test_json.cpp" />
     <ClCompile Include="..\tests\test_json_reader.cpp" />
@@ -47,6 +48,7 @@
     <ClCompile Include="..\src\core\events\analysis.cpp" />
     <ClCompile Include="..\src\core\events\crash_timeline.cpp" />
     <ClCompile Include="..\src\core\events\event.cpp" />
+    <ClCompile Include="..\src\core\events\grouping.cpp" />
     <ClCompile Include="..\src\core\events\whea.cpp" />
     <ClCompile Include="..\src\core\input\values.cpp" />
     <ClCompile Include="..\src\core\json\reader.cpp" />

@@ -131,6 +131,16 @@ EventLoad load_events(const cli::CommandLine& cmdline, const LoadOptions& option
     return load;
 }
 
+std::vector<const events::WheaRecord*> flatten_records(const EventLoad& load) {
+    std::vector<const events::WheaRecord*> records;
+    for (const events::Incident& incident : load.incidents) {
+        for (const events::WheaRecord& record : incident.records) records.push_back(&record);
+    }
+    // cluster() sorted the incidents and their records by time, so the flat
+    // list is already in log order.
+    return records;
+}
+
 void report_warnings(const EventLoad& load, const text::Style& style) {
     if (load.warnings.empty()) return;
 

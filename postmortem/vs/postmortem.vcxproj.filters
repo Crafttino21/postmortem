@@ -109,6 +109,9 @@
     <ClCompile Include="..\src\core\events\event.cpp">
       <Filter>src\core\events</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\core\events\grouping.cpp">
+      <Filter>src\core\events</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\core\events\whea.cpp">
       <Filter>src\core\events</Filter>
     </ClCompile>
@@ -247,6 +250,9 @@
       <Filter>src\core\events</Filter>
     </ClInclude>
     <ClInclude Include="..\src\core\events\event.hpp">
+      <Filter>src\core\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\events\grouping.hpp">
       <Filter>src\core\events</Filter>
     </ClInclude>
     <ClInclude Include="..\src\core\events\whea.hpp">

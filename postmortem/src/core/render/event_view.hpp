@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "core/events/grouping.hpp"
 #include "core/events/whea.hpp"
 #include "core/json/writer.hpp"
 #include "core/text/format.hpp"
@@ -30,5 +31,22 @@ struct IncidentOptions {
                                           const IncidentOptions& options);
 
 void incident_json(const events::Incident& incident, json::Writer& writer, bool include_decodes);
+
+// One row per raw record, uncollapsed. `pm scan` normally folds a broadcast
+// machine check into a single incident; this is the view that shows all N
+// records as the log holds them, with the registers inline.
+[[nodiscard]] std::string record_table(const std::vector<const events::WheaRecord*>& records,
+                                       cpu::Vendor vendor, const text::Style& style,
+                                       const IncidentOptions& options);
+
+void record_json(const std::vector<const events::WheaRecord*>& records, cpu::Vendor vendor,
+                 json::Writer& writer);
+
+// A frequency tally, most frequent first.
+[[nodiscard]] std::string grouping_table(const events::Grouping& grouping,
+                                         const text::Style& style,
+                                         const IncidentOptions& options);
+
+void grouping_json(const events::Grouping& grouping, json::Writer& writer);
 
 }  // namespace postmortem::render

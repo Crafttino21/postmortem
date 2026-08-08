@@ -149,6 +149,56 @@ reset, so Windows harvests them on the way up: a record written 19 seconds
 after boot describes the crash that ended the *previous* session, not anything
 that happened after this one started.
 
+#### `--records` — every raw record, uncollapsed
+
+Sometimes the folding is the wrong thing and you want the log as it stands:
+
+```
+> pm scan --records
+
+  #   When                 APIC  Bank  MciStat             MciAddr             Type  Class
+  1   2026-06-06 17:56:01  5     5     0xBEA0000000000108  0x01FFF800B3409A9A  9     kernel VA
+  2   2026-06-13 19:46:38  11    5     0xBEA0000000000108  0x00007FFFC45C42FE  9     user VA
+  3   2026-06-13 19:46:38  17    5     0xBEA0000001000108  0x00007FF913A99F3B  9     user VA
+```
+
+Eleven rows where `pm scan` shows eight incidents — rows 2 and 3 are one
+broadcast fault. This replaces the `Get-WinEvent | Select-Object` pipeline you
+would otherwise write by hand, and adds the address classification, which the
+raw `EventData` cannot give you.
+
+#### `--group-by` — frequency tally
+
+The equivalent of `Group-Object … | Sort-Object Count -Descending`, over fields
+the tool has already decoded:
+
+```
+> pm scan --group-by event,bank,apic
+
+  Count  Share  Event  Bank  APIC  First seen           Last seen
+  4      36%    18     5     11    2026-06-13 19:46:38  2026-08-08 13:46:35
+  2      18%    18     5     10    2026-07-04 18:22:54  2026-07-25 19:57:39
+  2      18%    18     5     18    2026-07-16 20:09:00  2026-07-25 19:57:39
+  1      9%     18     5     17    2026-06-13 19:46:38  2026-06-13 19:46:38
+```
+
+| Field | Groups by |
+|---|---|
+| `apic` `bank` `event` `type` `transaction` | the raw EventData fields |
+| `status` | the whole `MCA_STATUS` value |
+| `code` | `MCA_STATUS[15:0]`, the compound error code |
+| `address` `page` | the address, or the 4 KiB page it falls in |
+| `class` | user VA / kernel VA / physical |
+| `severity` | corrected, uncorrected, fatal |
+| `day` `hour` | calendar day or hour of day, local time |
+
+Combine them with commas. The decoded fields are where this beats a PowerShell
+pipeline: `--group-by page` answers "do the faults cluster in one page" in one
+command, and `--group-by status` separates register values that differ only in
+their model-specific half.
+
+Both views honour `--json`, `--since` and `--evtx`.
+
 ### `pm show <n>`
 
 The full decode of one incident: every record, the MCA registers bit by bit,

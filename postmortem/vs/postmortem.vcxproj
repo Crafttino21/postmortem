@@ -62,6 +62,7 @@
     <ClCompile Include="..\src\core\events\analysis.cpp" />
     <ClCompile Include="..\src\core\events\crash_timeline.cpp" />
     <ClCompile Include="..\src\core\events\event.cpp" />
+    <ClCompile Include="..\src\core\events\grouping.cpp" />
     <ClCompile Include="..\src\core\events\whea.cpp" />
     <ClCompile Include="..\src\core\input\values.cpp" />
     <ClCompile Include="..\src\core\json\reader.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="..\src\core\events\analysis.hpp" />
     <ClInclude Include="..\src\core\events\crash_timeline.hpp" />
     <ClInclude Include="..\src\core\events\event.hpp" />
+    <ClInclude Include="..\src\core\events\grouping.hpp" />
     <ClInclude Include="..\src\core\events\whea.hpp" />
     <ClInclude Include="..\src\core\input\values.hpp" />
     <ClInclude Include="..\src\core\json\reader.hpp" />

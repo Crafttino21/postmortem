@@ -231,6 +231,158 @@ std::string incident_detail(const events::Incident& incident, std::size_t index,
     return out;
 }
 
+std::string record_table(const std::vector<const events::WheaRecord*>& records,
+                         cpu::Vendor vendor, const text::Style& style,
+                         const IncidentOptions& options) {
+    if (records.empty()) {
+        return text::paragraph("No WHEA records in the selected range.");
+    }
+
+    text::Table table({"#", "When", "APIC", "Bank", "MciStat", "MciAddr", "Type", "Class"});
+    for (std::size_t i = 0; i < records.size(); ++i) {
+        const events::WheaRecord& record = *records[i];
+
+        std::string address_class = "-";
+        if (record.mci_addr.has_value()) {
+            address_class = events::field_value(record, events::GroupField::AddressClass, vendor,
+                                                options.time);
+        }
+
+        table.add_row({
+            std::to_string(i + 1),
+            options.time(record.event.time),
+            record.apic_id.has_value() ? std::to_string(*record.apic_id) : "-",
+            record.mca_bank.has_value() ? std::to_string(*record.mca_bank) : "-",
+            record.mci_stat.has_value() ? to_hex(*record.mci_stat, 16) : "-",
+            record.mci_addr.has_value() ? to_hex(*record.mci_addr, 16) : "-",
+            record.error_type.has_value() ? std::to_string(*record.error_type) : "-",
+            address_class,
+        });
+    }
+
+    std::string out = text::paragraph(
+        std::to_string(records.size()) +
+        " raw record(s), one row each. An uncorrectable machine check is broadcast to every "
+        "core, so several rows can describe a single fault - 'pm scan' without --records "
+        "folds those together.");
+    out += "\n";
+    out += table.render(style);
+    return out;
+}
+
+void record_json(const std::vector<const events::WheaRecord*>& records, cpu::Vendor vendor,
+                 json::Writer& writer) {
+    writer.begin_array();
+    for (const events::WheaRecord* pointer : records) {
+        if (pointer == nullptr) continue;
+        const events::WheaRecord& record = *pointer;
+
+        writer.begin_object();
+        writer.member_int("time_unix", record.event.time);
+        writer.member("time_utc", text::format_utc(record.event.time));
+        writer.member_uint("event_id", record.event.event_id);
+        writer.member_uint("record_id", record.event.record_id);
+
+        const auto optional_uint = [&](std::string_view name,
+                                       const std::optional<unsigned>& value) {
+            if (value.has_value()) {
+                writer.member_uint(name, *value);
+            } else {
+                writer.member_null(name);
+            }
+        };
+        optional_uint("apic_id", record.apic_id);
+        optional_uint("mca_bank", record.mca_bank);
+        optional_uint("error_type", record.error_type);
+        optional_uint("transaction_type", record.transaction_type);
+
+        if (record.mci_stat.has_value()) {
+            writer.member_hex("mci_stat", *record.mci_stat, 16);
+        } else {
+            writer.member_null("mci_stat");
+        }
+        if (record.mci_addr.has_value()) {
+            writer.member_hex("mci_addr", *record.mci_addr, 16);
+            writer.member("address_class",
+                          events::field_value(record, events::GroupField::AddressClass, vendor,
+                                              [](std::int64_t t) { return text::format_utc(t); }));
+        } else {
+            writer.member_null("mci_addr");
+            writer.member_null("address_class");
+        }
+        if (record.mci_misc.has_value()) {
+            writer.member_hex("mci_misc", *record.mci_misc, 16);
+        } else {
+            writer.member_null("mci_misc");
+        }
+        writer.member_bool("uncorrected", record.is_uncorrected());
+        writer.member_bool("context_corrupt", record.is_context_corrupt());
+        writer.end_object();
+    }
+    writer.end_array();
+}
+
+std::string grouping_table(const events::Grouping& grouping, const text::Style& style,
+                           const IncidentOptions& options) {
+    if (grouping.rows.empty()) {
+        return text::paragraph("No WHEA records in the selected range.");
+    }
+
+    std::vector<std::string> headers{"Count", "Share"};
+    for (const events::GroupField field : grouping.fields) {
+        headers.emplace_back(events::group_field_header(field));
+    }
+    headers.emplace_back("First seen");
+    headers.emplace_back("Last seen");
+
+    text::Table table(std::move(headers));
+    for (const events::GroupRow& row : grouping.rows) {
+        std::vector<std::string> cells{
+            std::to_string(row.count),
+            grouping.total_records > 0
+                ? std::to_string(row.count * 100 / grouping.total_records) + "%"
+                : "-"};
+        for (const std::string& value : row.key) cells.push_back(value);
+        cells.push_back(options.time(row.first_seen));
+        cells.push_back(options.time(row.last_seen));
+        table.add_row(std::move(cells));
+    }
+
+    std::string out = text::paragraph(std::to_string(grouping.rows.size()) +
+                                      " distinct combination(s) across " +
+                                      std::to_string(grouping.total_records) + " record(s).");
+    out += "\n";
+    out += table.render(style);
+    return out;
+}
+
+void grouping_json(const events::Grouping& grouping, json::Writer& writer) {
+    writer.begin_object();
+    writer.member_uint("total_records", grouping.total_records);
+
+    writer.key("fields").begin_array();
+    for (const events::GroupField field : grouping.fields) {
+        writer.value(events::group_field_header(field));
+    }
+    writer.end_array();
+
+    writer.key("rows").begin_array();
+    for (const events::GroupRow& row : grouping.rows) {
+        writer.begin_object();
+        writer.member_uint("count", row.count);
+        writer.key("key").begin_array();
+        for (const std::string& value : row.key) writer.value(value);
+        writer.end_array();
+        writer.member_int("first_seen_unix", row.first_seen);
+        writer.member("first_seen_utc", text::format_utc(row.first_seen));
+        writer.member_int("last_seen_unix", row.last_seen);
+        writer.member("last_seen_utc", text::format_utc(row.last_seen));
+        writer.end_object();
+    }
+    writer.end_array();
+    writer.end_object();
+}
+
 void incident_json(const events::Incident& incident, json::Writer& writer,
                    bool include_decodes) {
     writer.begin_object();

@@ -21,6 +21,9 @@
     <ClCompile Include="..\tests\test_events.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_grouping.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\tests\test_input.cpp">
       <Filter>tests</Filter>
     </ClCompile>
@@ -70,6 +73,9 @@
       <Filter>core under test</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\events\event.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\events\grouping.cpp">
       <Filter>core under test</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\events\whea.cpp">

@@ -61,4 +61,8 @@ struct LoadOptions {
 // Prints the query's non-fatal warnings, if any.
 void report_warnings(const EventLoad& load, const text::Style& style);
 
+// Every record from every incident, in log order. Incidents own their records,
+// so the pointers stay valid as long as the EventLoad does.
+[[nodiscard]] std::vector<const events::WheaRecord*> flatten_records(const EventLoad& load);
+
 }  // namespace postmortem::commands

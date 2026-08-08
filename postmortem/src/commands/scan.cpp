@@ -5,6 +5,7 @@
 #include <string>
 
 #include "commands/common.hpp"
+#include "core/events/grouping.hpp"
 #include "core/input/values.hpp"
 #include "core/json/writer.hpp"
 #include "core/render/event_view.hpp"
@@ -48,6 +49,78 @@ int run_scan(const cli::CommandLine& cmdline, const text::Style& style) {
         return exit_code::kFailure;
     }
 
+    render::IncidentOptions view;
+    view.verbose = cmdline.global.verbose;
+    view.time = local_time_formatter();
+
+    // --group-by: a frequency tally instead of a history.
+    if (const std::string* fields_text = cmdline.option("group-by")) {
+        const events::GroupFieldList fields = events::parse_group_fields(*fields_text);
+        if (!fields.ok) {
+            write_error("--group-by: " + fields.error);
+            std::string help = "Available fields:\n";
+            for (const events::GroupFieldSpec& spec : events::group_field_specs()) {
+                std::string name(spec.name);
+                while (name.size() < 12) name += ' ';
+                help += "  " + name + std::string(spec.description) + "\n";
+            }
+            write_out(help);
+            return exit_code::kUsage;
+        }
+
+        const std::vector<const events::WheaRecord*> records = flatten_records(load);
+        const events::Grouping grouping =
+            events::group_records(records, fields.fields, load.vendor, view.time);
+
+        if (cmdline.global.json) {
+            json::Writer writer(true);
+            writer.begin_object();
+            writer.key("tool").begin_object();
+            writer.member("name", "postmortem");
+            writer.member("command", "scan");
+            writer.member("view", "group-by");
+            writer.member("source", load.source);
+            writer.end_object();
+            writer.key("grouping");
+            render::grouping_json(grouping, writer);
+            writer.end_object();
+            write_out(writer.take() + "\n");
+            return exit_code::kSuccess;
+        }
+
+        write_out(text::heading("WHEA records from " + load.source + ", grouped", style) + "\n" +
+                  render::grouping_table(grouping, style, view));
+        report_warnings(load, style);
+        return exit_code::kSuccess;
+    }
+
+    // --records: every raw record, uncollapsed.
+    if (cmdline.has_option("records")) {
+        const std::vector<const events::WheaRecord*> records = flatten_records(load);
+
+        if (cmdline.global.json) {
+            json::Writer writer(true);
+            writer.begin_object();
+            writer.key("tool").begin_object();
+            writer.member("name", "postmortem");
+            writer.member("command", "scan");
+            writer.member("view", "records");
+            writer.member("source", load.source);
+            writer.end_object();
+            writer.member_uint("record_count", records.size());
+            writer.key("records");
+            render::record_json(records, load.vendor, writer);
+            writer.end_object();
+            write_out(writer.take() + "\n");
+            return exit_code::kSuccess;
+        }
+
+        write_out(text::heading("WHEA records from " + load.source, style) + "\n" +
+                  render::record_table(records, load.vendor, style, view));
+        report_warnings(load, style);
+        return exit_code::kSuccess;
+    }
+
     // Topology is only meaningful for the live log.
     platform::TopologyMap topology;
     if (!cmdline.global.evtx.has_value()) topology = platform::query_topology();
@@ -74,12 +147,8 @@ int run_scan(const cli::CommandLine& cmdline, const text::Style& style) {
         return exit_code::kSuccess;
     }
 
-    render::IncidentOptions render_options;
-    render_options.verbose = cmdline.global.verbose;
-    render_options.time = local_time_formatter();
-
     std::string out = text::heading("WHEA records from " + load.source, style) + "\n";
-    out += render::incident_table(load.incidents, style, render_options);
+    out += render::incident_table(load.incidents, style, view);
 
     // Per-incident core mapping, when we can do it honestly.
     if (topology.available && !load.incidents.empty()) {

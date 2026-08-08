@@ -25,7 +25,13 @@ constexpr std::array<OptionSpec, 7> kGlobalOptions{{
 
 // Per-subcommand options. `--evtx` is global (spec §5) even though `scan`
 // advertises it, so it is not repeated here.
-constexpr std::array<OptionSpec, 1> kScanOptions{{{"since", true}}};
+// scan doubles as the raw-record and frequency-tally view: --records shows
+// every record uncollapsed, --group-by counts recurring combinations.
+constexpr std::array<OptionSpec, 3> kScanOptions{{
+    {"since", true},
+    {"records", false},
+    {"group-by", true},
+}};
 constexpr std::array<OptionSpec, 1> kTimelineOptions{{{"since", true}}};
 constexpr std::array<OptionSpec, 2> kWatchOptions{{{"log", true}, {"exec", true}}};
 // §5 names --cper and --mci-stat. MciAddr/MciMisc are decoded alongside

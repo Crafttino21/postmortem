@@ -7,6 +7,7 @@ add_executable(postmortem_tests
     test_args.cpp
     test_cper.cpp
     test_events.cpp
+    test_grouping.cpp
     test_input.cpp
     test_json.cpp
     test_json_reader.cpp
