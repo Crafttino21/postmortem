@@ -39,7 +39,7 @@
     <None Include="..\CLAUDE.md" />
     <None Include="..\CMakeLists.txt" />
     <None Include="..\CMakePresets.json" />
-    <None Include="..\README.md" />
+    <None Include="..\..\README.md" />
     <None Include="..\docs\postmortem-spec.md" />
   </ItemGroup>
   <ItemGroup>
