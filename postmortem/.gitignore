@@ -10,7 +10,8 @@
 #                            Visual Studio offering to add CMake's generated
 #                            sources to postmortem.vcxproj)
 #   ../x64/<config>/         MSBuild, linker output
-#   x64/<config>/            MSBuild, intermediate object files
+#   vs/x64/<config>/<proj>/  MSBuild, intermediate object files (both projects
+#                            share the vs/ directory, so each gets its own)
 
 # CMake, when configured in-tree rather than through a preset
 CMakeCache.txt

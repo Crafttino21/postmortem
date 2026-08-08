@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Solution Explorer layout, mirroring the on-disk tree. Generated to match
-  the CMake source lists; if you add a file, add it to both.
--->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
@@ -47,266 +43,261 @@
     <Filter Include="src\platform">
       <UniqueIdentifier>{3df3dcb7-d3f8-469b-83df-3dcb7d3f869b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="docs">
-      <UniqueIdentifier>{00000000-0d83-4948-8000-000000d83948}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CLAUDE.md" />
-    <None Include="CMakeLists.txt" />
-    <None Include="CMakePresets.json" />
-    <None Include="README.md" />
-    <None Include="docs\postmortem-spec.md">
-      <Filter>docs</Filter>
-    </None>
+    <None Include="..\CLAUDE.md" />
+    <None Include="..\CMakeLists.txt" />
+    <None Include="..\CMakePresets.json" />
+    <None Include="..\README.md" />
+    <None Include="..\docs\postmortem-spec.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\commands\common.cpp">
+    <ClCompile Include="..\src\commands\common.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\decode.cpp">
+    <ClCompile Include="..\src\commands\decode.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\mitigate.cpp">
+    <ClCompile Include="..\src\commands\mitigate.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\report.cpp">
+    <ClCompile Include="..\src\commands\report.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\scan.cpp">
+    <ClCompile Include="..\src\commands\scan.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\status.cpp">
+    <ClCompile Include="..\src\commands\status.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\timeline.cpp">
+    <ClCompile Include="..\src\commands\timeline.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\topology.cpp">
+    <ClCompile Include="..\src\commands\topology.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\commands\watch.cpp">
+    <ClCompile Include="..\src\commands\watch.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\cli\args.cpp">
+    <ClCompile Include="..\src\core\cli\args.cpp">
       <Filter>src\core\cli</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\cli\usage.cpp">
+    <ClCompile Include="..\src\core\cli\usage.cpp">
       <Filter>src\core\cli</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\cper\guid.cpp">
+    <ClCompile Include="..\src\core\cper\guid.cpp">
       <Filter>src\core\cper</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\cper\record.cpp">
+    <ClCompile Include="..\src\core\cper\record.cpp">
       <Filter>src\core\cper</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\cper\sections.cpp">
+    <ClCompile Include="..\src\core\cper\sections.cpp">
       <Filter>src\core\cper</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\cpu\signature.cpp">
+    <ClCompile Include="..\src\core\cpu\signature.cpp">
       <Filter>src\core\cpu</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\events\analysis.cpp">
+    <ClCompile Include="..\src\core\events\analysis.cpp">
       <Filter>src\core\events</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\events\crash_timeline.cpp">
+    <ClCompile Include="..\src\core\events\crash_timeline.cpp">
       <Filter>src\core\events</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\events\event.cpp">
+    <ClCompile Include="..\src\core\events\event.cpp">
       <Filter>src\core\events</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\events\whea.cpp">
+    <ClCompile Include="..\src\core\events\whea.cpp">
       <Filter>src\core\events</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\input\values.cpp">
+    <ClCompile Include="..\src\core\input\values.cpp">
       <Filter>src\core\input</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\json\reader.cpp">
+    <ClCompile Include="..\src\core\json\reader.cpp">
       <Filter>src\core\json</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\json\writer.cpp">
+    <ClCompile Include="..\src\core\json\writer.cpp">
       <Filter>src\core\json</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\mca\registers.cpp">
+    <ClCompile Include="..\src\core\mca\registers.cpp">
       <Filter>src\core\mca</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\render\decode_view.cpp">
+    <ClCompile Include="..\src\core\render\decode_view.cpp">
       <Filter>src\core\render</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\render\event_view.cpp">
+    <ClCompile Include="..\src\core\render\event_view.cpp">
       <Filter>src\core\render</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\text\format.cpp">
+    <ClCompile Include="..\src\core\text\format.cpp">
       <Filter>src\core\text</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\text\table.cpp">
+    <ClCompile Include="..\src\core\text\table.cpp">
       <Filter>src\core\text</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\xml\parse.cpp">
+    <ClCompile Include="..\src\core\xml\parse.cpp">
       <Filter>src\core\xml</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="..\src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\arch.cpp">
+    <ClCompile Include="..\src\platform\arch.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\console.cpp">
+    <ClCompile Include="..\src\platform\console.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\cpu_info.cpp">
+    <ClCompile Include="..\src\platform\cpu_info.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\cpu_topology.cpp">
+    <ClCompile Include="..\src\platform\cpu_topology.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\eventlog.cpp">
+    <ClCompile Include="..\src\platform\eventlog.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\file.cpp">
+    <ClCompile Include="..\src\platform\file.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\os_info.cpp">
+    <ClCompile Include="..\src\platform\os_info.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\power.cpp">
+    <ClCompile Include="..\src\platform\power.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\registry.cpp">
+    <ClCompile Include="..\src\platform\registry.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\smbios.cpp">
+    <ClCompile Include="..\src\platform\smbios.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\state.cpp">
+    <ClCompile Include="..\src\platform\state.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\platform\strings.cpp">
+    <ClCompile Include="..\src\platform\strings.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\commands\common.hpp">
+    <ClInclude Include="..\src\commands\common.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\decode.hpp">
+    <ClInclude Include="..\src\commands\decode.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\mitigate.hpp">
+    <ClInclude Include="..\src\commands\mitigate.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\report.hpp">
+    <ClInclude Include="..\src\commands\report.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\scan.hpp">
+    <ClInclude Include="..\src\commands\scan.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\status.hpp">
+    <ClInclude Include="..\src\commands\status.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\timeline.hpp">
+    <ClInclude Include="..\src\commands\timeline.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\topology.hpp">
+    <ClInclude Include="..\src\commands\topology.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\commands\watch.hpp">
+    <ClInclude Include="..\src\commands\watch.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\cli\args.hpp">
+    <ClInclude Include="..\src\core\cli\args.hpp">
       <Filter>src\core\cli</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\cli\usage.hpp">
+    <ClInclude Include="..\src\core\cli\usage.hpp">
       <Filter>src\core\cli</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\cper\guid.hpp">
+    <ClInclude Include="..\src\core\cper\guid.hpp">
       <Filter>src\core\cper</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\cper\reader.hpp">
+    <ClInclude Include="..\src\core\cper\reader.hpp">
       <Filter>src\core\cper</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\cper\record.hpp">
+    <ClInclude Include="..\src\core\cper\record.hpp">
       <Filter>src\core\cper</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\cpu\signature.hpp">
+    <ClInclude Include="..\src\core\cpu\signature.hpp">
       <Filter>src\core\cpu</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\events\analysis.hpp">
+    <ClInclude Include="..\src\core\events\analysis.hpp">
       <Filter>src\core\events</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\events\crash_timeline.hpp">
+    <ClInclude Include="..\src\core\events\crash_timeline.hpp">
       <Filter>src\core\events</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\events\event.hpp">
+    <ClInclude Include="..\src\core\events\event.hpp">
       <Filter>src\core\events</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\events\whea.hpp">
+    <ClInclude Include="..\src\core\events\whea.hpp">
       <Filter>src\core\events</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\input\values.hpp">
+    <ClInclude Include="..\src\core\input\values.hpp">
       <Filter>src\core\input</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\json\reader.hpp">
+    <ClInclude Include="..\src\core\json\reader.hpp">
       <Filter>src\core\json</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\json\writer.hpp">
+    <ClInclude Include="..\src\core\json\writer.hpp">
       <Filter>src\core\json</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\mca\registers.hpp">
+    <ClInclude Include="..\src\core\mca\registers.hpp">
       <Filter>src\core\mca</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\render\decode_view.hpp">
+    <ClInclude Include="..\src\core\render\decode_view.hpp">
       <Filter>src\core\render</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\render\event_view.hpp">
+    <ClInclude Include="..\src\core\render\event_view.hpp">
       <Filter>src\core\render</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\text\format.hpp">
+    <ClInclude Include="..\src\core\text\format.hpp">
       <Filter>src\core\text</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\text\table.hpp">
+    <ClInclude Include="..\src\core\text\table.hpp">
       <Filter>src\core\text</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\version.hpp">
+    <ClInclude Include="..\src\core\version.hpp">
       <Filter>src\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\xml\parse.hpp">
+    <ClInclude Include="..\src\core\xml\parse.hpp">
       <Filter>src\core\xml</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\arch.hpp">
+    <ClInclude Include="..\src\platform\arch.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\console.hpp">
+    <ClInclude Include="..\src\platform\console.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\cpu_info.hpp">
+    <ClInclude Include="..\src\platform\cpu_info.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\cpu_topology.hpp">
+    <ClInclude Include="..\src\platform\cpu_topology.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\eventlog.hpp">
+    <ClInclude Include="..\src\platform\eventlog.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\file.hpp">
+    <ClInclude Include="..\src\platform\file.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\os_info.hpp">
+    <ClInclude Include="..\src\platform\os_info.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\power.hpp">
+    <ClInclude Include="..\src\platform\power.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\registry.hpp">
+    <ClInclude Include="..\src\platform\registry.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\smbios.hpp">
+    <ClInclude Include="..\src\platform\smbios.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\state.hpp">
+    <ClInclude Include="..\src\platform\state.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\platform\strings.hpp">
+    <ClInclude Include="..\src\platform\strings.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
   </ItemGroup>

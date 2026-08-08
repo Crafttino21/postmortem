@@ -373,6 +373,13 @@ build for IDE use. If you add a source file, add it to both, and keep every
 `.cpp` basename unique across the repository: MSBuild puts all object files of
 a project in one flat directory.
 
+The `.vcxproj` files live in `postmortem/vs/` rather than beside `src/`.
+Visual Studio offers every file under a project's directory as something to add
+to that project, and it repeatedly swept `tests/*.cpp` into `pm.exe` — which
+broke the link with *"main ist bereits in main.obj definiert"*, because
+`tests/test_main.cpp` carries the test runner's own `main()`. With the project
+files in a directory of their own, there is nothing beside them to sweep.
+
 ### Layout
 
 ```
@@ -380,6 +387,7 @@ src/core/       no Windows headers - decoders, parsers, rendering, CLI
 src/platform/   everything that touches Win32
 src/commands/   one file per subcommand
 tests/          links core only, which is what enforces the split
+vs/             Visual Studio project files, deliberately isolated
 ```
 
 `postmortem_tests` links `postmortem_core` and nothing else. If a
