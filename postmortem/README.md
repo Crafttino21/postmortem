@@ -82,6 +82,7 @@ pm watch [--log F] [--exec CMD]    Live subscription
 pm decode --cper <hex|@file>       Decode a CPER blob standalone
 pm decode --mci-stat 0xbea...      Decode a single MCA register value
 pm topology                        APIC -> core/thread/CCD map
+pm live [--interval 1s]            Live view of what the CPU is doing
 pm mitigate list|apply|revert <n>  Mitigation control
 pm report [--format json|md]       Export
 ```
@@ -236,6 +237,75 @@ other person pasted:
 - `--vendor amd|intel` decides how `MCA_ADDR` and the vendor-specific status
   bits are read. Left off, the AMD SMCA layout is assumed and said to be
   assumed.
+
+`--walk` steps through a CPER record field by field instead of printing the
+finished decode, showing each byte offset as it is consumed:
+
+```
+> pm decode --cper @record.bin --walk
+
+  Offset  Len  Field             Value                                 Means
+  0x0000  4    SignatureStart    CPER                                  valid
+  0x000A  2    SectionCount      4
+  0x0018  8    Timestamp (BCD)   0x2026080801150421                    2026-08-08 15:04:21
+  0x0090  16   SectionType       dc3ea0b0-a144-4797-b95b-53fa242b6e1d  IA32/X64 Processor Error
+  0x01A0  8      ValidationBits  0x000000000000017F                    APIC id valid, CPUID valid,
+                                                                       [7:2] error-info count = 1
+  0x01B0  8      CPUVersion      0x0000000000A20F12                    family 0x19, model 0x21, stepping 2
+```
+
+On a console it is interactive — `space`/`n` step, `p` back, `a` auto-advance,
+`q` quit — and the hex dump marks the current field's bytes with a caret rule
+underneath. Redirected, you get the whole listing at once.
+
+The offsets are not a second copy of the layout tables: the decoder records
+each field *as it reads it*, so what the walk highlights is literally what was
+consumed. A test asserts that the traced and untraced decodes are identical.
+
+### `pm live`
+
+Watch what the CPU is doing, refreshing until you stop it.
+
+```
+> pm live
+
+AMD Ryzen 9 5950X 16-Core Processor   nominal 3400 MHz   up 4h 29m
+2026-08-08 18:15:26   1.0s refresh   ETW: on
+
+ CPU   MHz   Perf  Load                        C1    C2    C3   Park   IRQ/s  DPC/s   CSw/s
+   0   4779   141%  #.......................    0%   97%    0%    no    1.6k    497    3.1k
+   1   4771   140%  ########################    0%    2%    0%    no    2.1k   3.2k    8.4k
+   2   4441   131%  #.......................    0%   86%    0%    no    2.9k    310    2.2k
+
+ Package load 14%    deep idle 18/32    parked 0
+ Deep idle is what the BIOS-level fixes in 'pm mitigate list' target.
+
+WHEA feed
+ no machine check since this view started (8 already in the log)
+```
+
+Keys: `q` quit, `space` pause, `s` sort by load, `r` reset the feed.
+
+The C-state columns are the reason this exists. The spec's thesis is
+idle-state instability, and `analyze` can only infer that statistically after
+the fact. Here you can watch cores sink into C2/C3 and see whether a machine
+check lands at that moment — the WHEA feed at the bottom is a live
+subscription, so a record appears the instant Windows writes it.
+
+`MHz` is derived from `% Processor Performance` against the nominal clock, not
+from the `Processor Frequency` counter — that counter is documented as the
+slowest processor's frequency and in practice reports a static value.
+
+Run **elevated** and it additionally starts an ETW kernel session, adding real
+per-core context-switch, interrupt and DPC counts rather than sampled rates.
+Without elevation it says so and shows the rest; `--no-etw` skips it entirely.
+
+**What it cannot show:** the executed instruction stream, register contents, or
+bus traffic. Watching instructions needs Intel PT or AMD IBS, and reading
+registers needs MSR access — both require a kernel driver, which this tool does
+not use. Actual bus traffic needs a logic analyzer on the board. Everything in
+`pm live` comes from documented user-mode APIs: PDH counters,
+`CallNtPowerInformation`, ETW and `EvtSubscribe`.
 
 ### `pm mitigate`
 

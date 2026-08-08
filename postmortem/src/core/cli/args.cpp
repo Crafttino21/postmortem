@@ -34,14 +34,18 @@ constexpr std::array<OptionSpec, 2> kWatchOptions{{{"log", true}, {"exec", true}
 // --vendor is not in §5's list, but MCA_ADDR and MCA_STATUS[56:53] are read
 // differently on AMD and Intel (§4.3) and a pasted register value carries no
 // hint of which. Without it the decoder assumes SMCA and says so.
-constexpr std::array<OptionSpec, 5> kDecodeOptions{{
+constexpr std::array<OptionSpec, 6> kDecodeOptions{{
     {"cper", true},
     {"mci-stat", true},
     {"mci-addr", true},
     {"mci-misc", true},
     {"vendor", true},
+    // Steps through the record field by field instead of printing the whole
+    // decode at once.
+    {"walk", false},
 }};
 constexpr std::array<OptionSpec, 1> kMitigateOptions{{{"scheme", true}}};
+constexpr std::array<OptionSpec, 2> kLiveOptions{{{"interval", true}, {"no-etw", false}}};
 // `report` builds on the same event query as scan and timeline, so it accepts
 // --since too rather than silently always covering the whole log.
 constexpr std::array<OptionSpec, 3> kReportOptions{{
@@ -58,7 +62,7 @@ struct CommandSpec {
     std::span<const OptionSpec> options;
 };
 
-constexpr std::array<CommandSpec, 10> kCommands{{
+constexpr std::array<CommandSpec, 11> kCommands{{
     {"status",   Command::Status,   1, true,  {}},
     {"scan",     Command::Scan,     4, true,  kScanOptions},
     {"show",     Command::Show,     4, true,  kScanOptions},
@@ -69,6 +73,8 @@ constexpr std::array<CommandSpec, 10> kCommands{{
     {"topology", Command::Topology, 5, true,  {}},
     {"mitigate", Command::Mitigate, 8, true,  kMitigateOptions},
     {"report",   Command::Report,  10, true,  kReportOptions},
+    // Milestone 0: not part of the spec's build order, added on request.
+    {"live",     Command::Live,     0, true,  kLiveOptions},
 }};
 
 const CommandSpec* find_command(std::string_view name) {

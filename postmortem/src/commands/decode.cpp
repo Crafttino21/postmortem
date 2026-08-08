@@ -1,7 +1,10 @@
 #include "commands/decode.hpp"
 
+#include <windows.h>
+
 #include <cstdio>
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -12,6 +15,7 @@
 #include "core/render/decode_view.hpp"
 #include "core/text/format.hpp"
 #include "platform/file.hpp"
+#include "platform/screen.hpp"
 
 namespace postmortem::commands {
 namespace {
@@ -149,6 +153,78 @@ std::string base_note(const RegisterValue& value) {
            text::to_hex(value.value, 16);
 }
 
+// The interactive walkthrough. Falls back to a single listing when stdout is
+// not a console, so `pm decode --cper X --walk > walk.txt` is still useful.
+int run_walk(std::span<const std::uint8_t> record,
+             const std::vector<cper::FieldSpan>& fields, const text::Style& style) {
+    platform::Screen screen;
+    if (!screen.enter()) {
+        write_out(render::walk_listing(record, fields, style));
+        return kSuccess;
+    }
+
+    std::size_t step = 0;
+    bool automatic = false;
+
+    for (;;) {
+        const platform::ScreenSize size = screen.size();
+        screen.draw(render::walk_frame(record, fields, step, style, size.rows));
+
+        int key = 0;
+        if (automatic) {
+            // Auto-advance, but stay responsive to a keypress.
+            for (int slice = 0; slice < 6 && key == 0; ++slice) {
+                key = platform::poll_key();
+                ::Sleep(100);
+            }
+            if (key == 0) {
+                if (step + 1 < fields.size()) {
+                    ++step;
+                } else {
+                    automatic = false;
+                }
+                continue;
+            }
+        } else {
+            while (key == 0) {
+                key = platform::poll_key();
+                ::Sleep(30);
+            }
+        }
+
+        switch (key) {
+            case 'q':
+            case 'Q':
+            case 3:            // Ctrl+C
+                screen.leave();
+                return kSuccess;
+            case ' ':
+            case 'n':
+            case 'N':
+                if (step + 1 < fields.size()) ++step;
+                automatic = false;
+                break;
+            case 'p':
+            case 'P':
+                if (step > 0) --step;
+                automatic = false;
+                break;
+            case 'a':
+            case 'A':
+                automatic = !automatic;
+                break;
+            case 'g':
+                step = 0;
+                break;
+            case 'G':
+                step = fields.empty() ? 0 : fields.size() - 1;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 }  // namespace
 
 int run_decode(const cli::CommandLine& cmdline, const text::Style& style) {
@@ -282,6 +358,21 @@ int run_decode(const cli::CommandLine& cmdline, const text::Style& style) {
                 "MCA_STATUS was not supplied, so it is not known whether MiscV was set; pass "
                 "--mci-stat as well to have that checked");
         }
+    }
+
+    // --walk steps through the record field by field instead of printing the
+    // finished decode. It is the same decode either way: the walk is driven by
+    // spans the decoder records as it reads, not by a second layout table.
+    if (cper_value != nullptr && cmdline.has_option("walk")) {
+        cper::Trace trace;
+        const cper::Record record = cper::decode_record_traced(blob.bytes, trace);
+        if (!record.ok) {
+            write_error("--cper: " + (record.errors.empty()
+                                          ? std::string("this is not a CPER record")
+                                          : record.errors.front()));
+            return kFailure;
+        }
+        return run_walk(blob.bytes, trace.fields, style);
     }
 
     int exit_code = kSuccess;

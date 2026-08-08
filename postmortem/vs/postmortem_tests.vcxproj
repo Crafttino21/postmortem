@@ -33,6 +33,7 @@
     <ClCompile Include="..\tests\test_input.cpp" />
     <ClCompile Include="..\tests\test_json.cpp" />
     <ClCompile Include="..\tests\test_json_reader.cpp" />
+    <ClCompile Include="..\tests\test_live.cpp" />
     <ClCompile Include="..\tests\test_main.cpp" />
     <ClCompile Include="..\tests\test_mca.cpp" />
     <ClCompile Include="..\tests\test_signature.cpp" />
@@ -53,6 +54,7 @@
     <ClCompile Include="..\src\core\mca\registers.cpp" />
     <ClCompile Include="..\src\core\render\decode_view.cpp" />
     <ClCompile Include="..\src\core\render\event_view.cpp" />
+    <ClCompile Include="..\src\core\render\live_view.cpp" />
     <ClCompile Include="..\src\core\text\format.cpp" />
     <ClCompile Include="..\src\core\text\table.cpp" />
     <ClCompile Include="..\src\core\xml\parse.cpp" />

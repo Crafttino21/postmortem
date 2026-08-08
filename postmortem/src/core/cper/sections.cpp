@@ -4,6 +4,8 @@
 #include "core/cper/record.hpp"
 #include "core/text/format.hpp"
 
+using postmortem::text::to_hex;
+
 namespace postmortem::cper {
 namespace {
 
@@ -284,8 +286,9 @@ std::string_view generic_operation_text(std::uint8_t value) {
     }
 }
 
-ProcessorGenericSection decode_processor_generic(std::span<const std::uint8_t> body) {
-    const Reader reader(body);
+ProcessorGenericSection decode_processor_generic(std::span<const std::uint8_t> body,
+                                                Trace* trace) {
+    const Reader reader(body, trace);
     ProcessorGenericSection section;
 
     section.validation_bits = reader.value_or(reader.u64(0), std::uint64_t{0});
@@ -322,6 +325,32 @@ ProcessorGenericSection decode_processor_generic(std::span<const std::uint8_t> b
     section.responder_id = reader.value_or(reader.u64(176), std::uint64_t{0});
     section.instruction_ip = reader.value_or(reader.u64(184), std::uint64_t{0});
 
+    // UEFI N.2.4.1, in layout order.
+    reader.note(0, 8, "ValidationBits", text::to_hex(section.validation_bits, 16));
+    reader.note(8, 1, "ProcessorType", std::to_string(section.processor_type),
+                section.processor_type_text);
+    reader.note(9, 1, "ProcessorISA", std::to_string(section.processor_isa),
+                section.processor_isa_text);
+    reader.note(10, 1, "ErrorType", std::to_string(section.error_type),
+                section.error_type_text);
+    reader.note(11, 1, "Operation", std::to_string(section.operation), section.operation_text);
+    reader.note(12, 1, "Flags", text::to_hex(section.flags, 2));
+    reader.note(13, 1, "Level", std::to_string(section.level));
+    reader.note(16, 8, "CPUVersion", text::to_hex(section.cpu_version, 16),
+                section.signature_valid
+                    ? "family " + text::to_hex(section.signature.family, 2) + ", model " +
+                          text::to_hex(section.signature.model, 2) + ", stepping " +
+                          std::to_string(section.signature.stepping)
+                    : "not marked valid");
+    if (!section.brand_string.empty()) {
+        reader.note(24, 128, "CPUBrandString", section.brand_string);
+    }
+    reader.note(152, 8, "ProcessorID", std::to_string(section.processor_id), "local APIC ID");
+    reader.note(160, 8, "TargetAddress", text::to_hex(section.target_address, 16));
+    reader.note(168, 8, "RequestorID", text::to_hex(section.requestor_id, 16));
+    reader.note(176, 8, "ResponderID", text::to_hex(section.responder_id, 16));
+    reader.note(184, 8, "InstructionIP", text::to_hex(section.instruction_ip, 16));
+
     return section;
 }
 
@@ -352,11 +381,31 @@ ProcessorErrorInfo decode_error_info(const Reader& reader, std::size_t offset) {
     if (bit(info.validation_bits, 3)) info.responder_id = reader.u64(offset + 48);
     if (bit(info.validation_bits, 4)) info.instruction_ip = reader.u64(offset + 56);
 
+    // UEFI Table N-9.
+    reader.note(offset + 0, 16, "CheckType", to_string(info.check_type),
+                info.check_type_name.empty() ? "not decoded by this build"
+                                             : info.check_type_name);
+    reader.note(offset + 16, 8, "ValidationBits", text::to_hex(info.validation_bits, 16));
+    reader.note(offset + 24, 8, "CheckInfo", text::to_hex(info.check_info_raw, 16),
+                info.check.has_value() ? info.check->kind + " check" : "");
+    if (info.target_id) {
+        reader.note(offset + 32, 8, "TargetID", text::to_hex(*info.target_id, 16));
+    }
+    if (info.requestor_id) {
+        reader.note(offset + 40, 8, "RequestorID", text::to_hex(*info.requestor_id, 16));
+    }
+    if (info.responder_id) {
+        reader.note(offset + 48, 8, "ResponderID", text::to_hex(*info.responder_id, 16));
+    }
+    if (info.instruction_ip) {
+        reader.note(offset + 56, 8, "InstructionIP", text::to_hex(*info.instruction_ip, 16));
+    }
+
     return info;
 }
 
-Ia32X64Section decode_ia32_x64(std::span<const std::uint8_t> body) {
-    const Reader reader(body);
+Ia32X64Section decode_ia32_x64(std::span<const std::uint8_t> body, Trace* trace) {
+    const Reader reader(body, trace);
     Ia32X64Section section;
 
     section.validation_bits = reader.value_or(reader.u64(0), std::uint64_t{0});
@@ -371,6 +420,19 @@ Ia32X64Section decode_ia32_x64(std::span<const std::uint8_t> body) {
         static_cast<unsigned>(field(section.validation_bits, 13, 8));
 
     section.local_apic_id = reader.value_or(reader.u64(8), std::uint64_t{0});
+
+    // UEFI N.2.4.2. The counts live inside the validation bitmap rather than
+    // in fields of their own, which is worth seeing spelled out.
+    reader.note(0, 8, "ValidationBits", text::to_hex(section.validation_bits, 16),
+                "APIC id " + std::string(section.apic_id_valid ? "valid" : "invalid") +
+                    ", CPUID " + (section.cpuid_info_valid ? "valid" : "invalid") +
+                    ", [7:2] error-info count = " +
+                    std::to_string(section.declared_error_info_count) +
+                    ", [13:8] context-info count = " +
+                    std::to_string(section.declared_context_info_count));
+    reader.note(8, 8, "LocalAPICID", std::to_string(section.local_apic_id));
+    reader.note(16, 48, "CPUIDInfo", "48 bytes",
+                "first 4 bytes are CPUID leaf 1 EAX");
 
     if (const auto cpuid = reader.bytes(16, 48)) {
         section.cpuid_info.assign(cpuid->begin(), cpuid->end());
@@ -438,8 +500,9 @@ std::string_view memory_error_type_text(unsigned value) {
     }
 }
 
-PlatformMemorySection decode_platform_memory(std::span<const std::uint8_t> body) {
-    const Reader reader(body);
+PlatformMemorySection decode_platform_memory(std::span<const std::uint8_t> body,
+                                             Trace* trace) {
+    const Reader reader(body, trace);
     PlatformMemorySection section;
 
     section.validation_bits = reader.value_or(reader.u64(0), std::uint64_t{0});
@@ -493,18 +556,19 @@ PlatformMemorySection decode_platform_memory(std::span<const std::uint8_t> body)
 
 }  // namespace
 
-void decode_section_body(Section& section, std::span<const std::uint8_t> body) {
+void decode_section_body(Section& section, std::span<const std::uint8_t> body,
+                         Trace* trace) {
     const Guid& type = section.descriptor.section_type;
 
     if (type == guids::kProcessorGeneric) {
         section.recognised = true;
-        section.processor_generic = decode_processor_generic(body);
+        section.processor_generic = decode_processor_generic(body, trace);
     } else if (type == guids::kIa32X64Processor) {
         section.recognised = true;
-        section.ia32_x64 = decode_ia32_x64(body);
+        section.ia32_x64 = decode_ia32_x64(body, trace);
     } else if (type == guids::kPlatformMemory) {
         section.recognised = true;
-        section.platform_memory = decode_platform_memory(body);
+        section.platform_memory = decode_platform_memory(body, trace);
     } else {
         // Spec §4.2: unknown section GUIDs must not fail the decode. Real
         // records carry vendor and Microsoft-private sections, and dropping

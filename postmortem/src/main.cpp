@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "commands/decode.hpp"
+#include "commands/live.hpp"
 #include "commands/mitigate.hpp"
 #include "commands/report.hpp"
 #include "commands/scan.hpp"
@@ -127,6 +128,9 @@ int main() {
 
         case cli::Command::Report:
             return commands::run_report(cmdline, style);
+
+        case cli::Command::Live:
+            return commands::run_live(cmdline, style);
 
         case cli::Command::None:
             break;

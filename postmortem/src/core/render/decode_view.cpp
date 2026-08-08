@@ -95,6 +95,154 @@ void json_strings(json::Writer& writer, std::string_view key,
 
 }  // namespace
 
+// ---------------------------------------------------------------------------
+// Walkthrough
+// ---------------------------------------------------------------------------
+
+namespace {
+
+constexpr std::size_t kBytesPerLine = 16;
+
+// Hex dump of the lines covering [from, to), with the bytes of the current
+// field highlighted and a caret rule underneath.
+std::string dump_around(std::span<const std::uint8_t> record, std::size_t offset,
+                        std::size_t length, const text::Style& style, std::size_t context_lines) {
+    if (record.empty()) return {};
+
+    const std::size_t first_line = (offset / kBytesPerLine);
+    const std::size_t last_line = ((offset + (length == 0 ? 1 : length) - 1) / kBytesPerLine);
+    const std::size_t start_line = first_line > context_lines ? first_line - context_lines : 0;
+    const std::size_t total_lines = (record.size() + kBytesPerLine - 1) / kBytesPerLine;
+    const std::size_t end_line = std::min(total_lines, last_line + context_lines + 1);
+
+    std::string out;
+    for (std::size_t line = start_line; line < end_line; ++line) {
+        const std::size_t base = line * kBytesPerLine;
+        const std::size_t count = std::min(kBytesPerLine, record.size() - base);
+
+        std::string address = to_hex(base, 8);
+        out += "  ";
+        out.append(address.begin() + 2, address.end());
+        out += "  ";
+
+        std::string caret = "  ";
+        caret.append(8, ' ');
+        caret += "  ";
+
+        for (std::size_t i = 0; i < kBytesPerLine; ++i) {
+            const std::size_t position = base + i;
+            const bool in_field = position >= offset && position < offset + length;
+            if (i < count) {
+                if (in_field) out.append(style.bad);
+                const std::uint8_t byte = record[position];
+                static constexpr char kDigits[] = "0123456789ABCDEF";
+                out += kDigits[(byte >> 4) & 0xF];
+                out += kDigits[byte & 0xF];
+                if (in_field) out.append(style.reset);
+            } else {
+                out += "  ";
+            }
+            out += ' ';
+            caret += in_field ? "^^ " : "   ";
+            if (i == 7) {
+                out += ' ';
+                caret += ' ';
+            }
+        }
+
+        out += ' ';
+        for (std::size_t i = 0; i < count; ++i) {
+            const std::uint8_t byte = record[base + i];
+            out += (byte >= 0x20 && byte < 0x7F) ? static_cast<char>(byte) : '.';
+        }
+        out += '\n';
+
+        // Only draw the caret rule under lines that actually contain the
+        // field, otherwise it is noise.
+        if (line >= first_line && line <= last_line) {
+            while (!caret.empty() && caret.back() == ' ') caret.pop_back();
+            if (!caret.empty()) {
+                out.append(style.bad);
+                out += caret;
+                out.append(style.reset);
+                out += '\n';
+            }
+        }
+    }
+    return out;
+}
+
+std::string field_heading(const cper::FieldSpan& field) {
+    return "+" + to_hex(field.offset, 4) + "  " + field.name + "  (" +
+           std::to_string(field.length) + (field.length == 1 ? " byte)" : " bytes)");
+}
+
+}  // namespace
+
+std::string walk_frame(std::span<const std::uint8_t> record,
+                       const std::vector<cper::FieldSpan>& fields, std::size_t step,
+                       const text::Style& style, unsigned rows) {
+    std::string out;
+
+    if (fields.empty()) {
+        return text::paragraph("There is nothing to walk: the record produced no fields.");
+    }
+    const std::size_t index = std::min(step, fields.size() - 1);
+    const cper::FieldSpan& field = fields[index];
+
+    out += text::heading("Walking the record  -  step " + std::to_string(index + 1) + " of " +
+                             std::to_string(fields.size()),
+                         style);
+    out += '\n';
+
+    // Context lines scale with the window so a tall terminal shows more of the
+    // record around the cursor.
+    const std::size_t context = rows > 24 ? 3 : 1;
+    out += dump_around(record, field.offset, field.length, style, context);
+    out += '\n';
+
+    out.append(style.value);
+    out += text::paragraph(field_heading(field));
+    out.append(style.reset);
+
+    text::KeyValueTable table;
+    table.add("Value", field.value.empty() ? "-" : field.value);
+    if (!field.meaning.empty()) table.add("Means", field.meaning);
+    out += table.render(style, 4);
+
+    if (index + 1 < fields.size()) {
+        const cper::FieldSpan& next = fields[index + 1];
+        out += '\n';
+        out.append(style.dim);
+        out += text::paragraph("next: " + field_heading(next));
+        out.append(style.reset);
+    }
+
+    out += '\n';
+    out.append(style.dim);
+    out += text::paragraph("space/n step   p back   a auto   g first   G last   q quit");
+    out.append(style.reset);
+    return out;
+}
+
+std::string walk_listing(std::span<const std::uint8_t> record,
+                         const std::vector<cper::FieldSpan>& fields, const text::Style& style) {
+    std::string out = text::heading("Field-by-field walk of " + std::to_string(record.size()) +
+                                        " bytes",
+                                    style);
+    out += '\n';
+
+    text::Table table({"Offset", "Len", "Field", "Value", "Means"});
+    for (const cper::FieldSpan& field : fields) {
+        std::string name(static_cast<std::size_t>(field.depth) * 2, ' ');
+        name += field.name;
+        table.add_row({to_hex(field.offset, 4), std::to_string(field.length), name, field.value,
+                       field.meaning});
+    }
+    out += table.render(style);
+    return out;
+}
+
 std::string format_field_value(const mca::FieldRow& field) {
     if (field.width_bits > 0 && field.width_bits <= 4) {
         return to_binary(field.value, field.width_bits);

@@ -19,6 +19,7 @@ std::string general_usage() {
         "  decode --cper <hex|@file>       Decode a CPER blob standalone\n"
         "  decode --mci-stat 0xbea...      Decode a single MCA register value\n"
         "  topology                        APIC -> core/thread/CCD map\n"
+        "  live [--interval 1s]            Live view of what the CPU is doing\n"
         "  mitigate list|apply|revert <n>  Mitigation control\n"
         "  report [--format json|md]       Export\n"
         "\n"
@@ -106,6 +107,10 @@ std::string command_usage(Command c) {
                 "                     decimal (what Event Viewer's friendly view shows).\n"
                 "  --mci-addr <v>     MCA_ADDR.\n"
                 "  --mci-misc <v>     MCA_MISC.\n"
+                "  --walk             Step through the record field by field, showing each\n"
+                "                     byte offset as it is consumed and what it decodes to.\n"
+                "                     Interactive when stdout is a console; a full listing\n"
+                "                     when redirected.\n"
                 "  --vendor <name>    amd, intel or unknown. Decides how MCA_ADDR and the\n"
                 "                     vendor-specific status bits are read. Defaults to\n"
                 "                     unknown, which assumes the AMD SMCA layout and says so.\n"
@@ -134,6 +139,28 @@ std::string command_usage(Command c) {
                 "\n"
                 "Usage:\n"
                 "  pm report [--format json|md] [--redact]\n";
+        case Command::Live:
+            return
+                "pm live - watch what the CPU is doing, until you stop it\n"
+                "\n"
+                "Usage:\n"
+                "  pm live [--interval 1s] [--no-etw]\n"
+                "\n"
+                "Shows, per logical processor and refreshing on a timer: actual frequency,\n"
+                "performance relative to nominal, load, idle-state (C1/C2/C3) residency,\n"
+                "parking, and interrupt and DPC rates. Any WHEA record that arrives while\n"
+                "watching appears in the feed at the bottom immediately.\n"
+                "\n"
+                "Run elevated and it additionally starts an ETW kernel session, adding real\n"
+                "context-switch, interrupt and DPC counts per core rather than sampled rates.\n"
+                "--no-etw skips that even when elevated.\n"
+                "\n"
+                "Keys:  q quit   space pause   s sort by load   r reset the feed\n"
+                "\n"
+                "What it cannot show: the executed instruction stream, register contents or\n"
+                "bus traffic. Those need Intel PT / AMD IBS or MSR access, which means a\n"
+                "kernel driver, which this tool does not use (spec section 2). Everything\n"
+                "here comes from documented user-mode APIs.\n";
         case Command::None:
             break;
     }

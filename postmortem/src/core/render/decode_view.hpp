@@ -17,7 +17,10 @@
 
 #pragma once
 
+#include <cstdint>
+#include <span>
 #include <string>
+#include <vector>
 
 #include "core/cper/record.hpp"
 #include "core/json/writer.hpp"
@@ -51,5 +54,20 @@ void record_json(const cper::Record& record, json::Writer& writer);
 // in binary, because the spec writes encodings such as "TTLL" in binary, and
 // wider ones in hex.
 [[nodiscard]] std::string format_field_value(const mca::FieldRow& field);
+
+// --- Walkthrough (`pm decode --walk`) --------------------------------------
+
+// One frame of the byte-by-byte walk: the hex dump around the field currently
+// being consumed, with that field's bytes marked, plus its decode. `step` is
+// an index into the trace the decoder produced.
+[[nodiscard]] std::string walk_frame(std::span<const std::uint8_t> record,
+                                     const std::vector<cper::FieldSpan>& fields,
+                                     std::size_t step, const text::Style& style,
+                                     unsigned rows);
+
+// The whole walk as one non-interactive listing, for piping to a file.
+[[nodiscard]] std::string walk_listing(std::span<const std::uint8_t> record,
+                                       const std::vector<cper::FieldSpan>& fields,
+                                       const text::Style& style);
 
 }  // namespace postmortem::render

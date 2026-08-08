@@ -13,12 +13,54 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <vector>
 
 namespace postmortem::cper {
+
+// One field as it was consumed from the buffer, for `pm decode --walk`.
+// Recording it here rather than rebuilding the layout in the renderer keeps a
+// single source of truth: the offsets the walkthrough shows are literally the
+// offsets the decoder read.
+struct FieldSpan {
+    std::size_t offset = 0;    // absolute, within the whole record
+    std::size_t length = 0;
+    std::string name;
+    std::string value;         // already formatted
+    std::string meaning;       // optional interpretation
+    int depth = 0;             // nesting, for indentation
+};
+
+// Collects spans while decoding. Null by default, so the normal decode path
+// costs nothing.
+struct Trace {
+    std::vector<FieldSpan> fields;
+    std::size_t base = 0;   // added to offsets, so a section body reports its
+                            // position within the record rather than within
+                            // its own body
+    int depth = 0;
+
+    void add(std::size_t offset, std::size_t length, std::string name, std::string value,
+             std::string meaning = {}) {
+        fields.push_back(
+            FieldSpan{base + offset, length, std::move(name), std::move(value),
+                      std::move(meaning), depth});
+    }
+};
 
 class Reader {
 public:
     explicit Reader(std::span<const std::uint8_t> data) : data_(data) {}
+    Reader(std::span<const std::uint8_t> data, Trace* trace) : data_(data), trace_(trace) {}
+
+    [[nodiscard]] Trace* trace() const { return trace_; }
+
+    // Records a field in the trace when one is attached; a no-op otherwise.
+    void note(std::size_t offset, std::size_t length, std::string name, std::string value,
+              std::string meaning = {}) const {
+        if (trace_ != nullptr) {
+            trace_->add(offset, length, std::move(name), std::move(value), std::move(meaning));
+        }
+    }
 
     [[nodiscard]] std::size_t size() const { return data_.size(); }
     [[nodiscard]] std::span<const std::uint8_t> all() const { return data_; }
@@ -89,6 +131,7 @@ private:
     }
 
     std::span<const std::uint8_t> data_;
+    Trace* trace_ = nullptr;
 };
 
 }  // namespace postmortem::cper

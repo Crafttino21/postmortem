@@ -10,6 +10,7 @@ add_executable(postmortem_tests
     test_input.cpp
     test_json.cpp
     test_json_reader.cpp
+    test_live.cpp
     test_mca.cpp
     test_signature.cpp
     test_table.cpp)

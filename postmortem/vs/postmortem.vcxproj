@@ -45,6 +45,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\commands\common.cpp" />
     <ClCompile Include="..\src\commands\decode.cpp" />
+    <ClCompile Include="..\src\commands\live.cpp" />
     <ClCompile Include="..\src\commands\mitigate.cpp" />
     <ClCompile Include="..\src\commands\report.cpp" />
     <ClCompile Include="..\src\commands\scan.cpp" />
@@ -68,6 +69,7 @@
     <ClCompile Include="..\src\core\mca\registers.cpp" />
     <ClCompile Include="..\src\core\render\decode_view.cpp" />
     <ClCompile Include="..\src\core\render\event_view.cpp" />
+    <ClCompile Include="..\src\core\render\live_view.cpp" />
     <ClCompile Include="..\src\core\text\format.cpp" />
     <ClCompile Include="..\src\core\text\table.cpp" />
     <ClCompile Include="..\src\core\xml\parse.cpp" />
@@ -76,11 +78,14 @@
     <ClCompile Include="..\src\platform\console.cpp" />
     <ClCompile Include="..\src\platform\cpu_info.cpp" />
     <ClCompile Include="..\src\platform\cpu_topology.cpp" />
+    <ClCompile Include="..\src\platform\etw.cpp" />
     <ClCompile Include="..\src\platform\eventlog.cpp" />
     <ClCompile Include="..\src\platform\file.cpp" />
     <ClCompile Include="..\src\platform\os_info.cpp" />
+    <ClCompile Include="..\src\platform\perf.cpp" />
     <ClCompile Include="..\src\platform\power.cpp" />
     <ClCompile Include="..\src\platform\registry.cpp" />
+    <ClCompile Include="..\src\platform\screen.cpp" />
     <ClCompile Include="..\src\platform\smbios.cpp" />
     <ClCompile Include="..\src\platform\state.cpp" />
     <ClCompile Include="..\src\platform\strings.cpp" />
@@ -88,6 +93,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\commands\common.hpp" />
     <ClInclude Include="..\src\commands\decode.hpp" />
+    <ClInclude Include="..\src\commands\live.hpp" />
     <ClInclude Include="..\src\commands\mitigate.hpp" />
     <ClInclude Include="..\src\commands\report.hpp" />
     <ClInclude Include="..\src\commands\scan.hpp" />
@@ -111,6 +117,7 @@
     <ClInclude Include="..\src\core\mca\registers.hpp" />
     <ClInclude Include="..\src\core\render\decode_view.hpp" />
     <ClInclude Include="..\src\core\render\event_view.hpp" />
+    <ClInclude Include="..\src\core\render\live_view.hpp" />
     <ClInclude Include="..\src\core\text\format.hpp" />
     <ClInclude Include="..\src\core\text\table.hpp" />
     <ClInclude Include="..\src\core\version.hpp" />
@@ -119,11 +126,14 @@
     <ClInclude Include="..\src\platform\console.hpp" />
     <ClInclude Include="..\src\platform\cpu_info.hpp" />
     <ClInclude Include="..\src\platform\cpu_topology.hpp" />
+    <ClInclude Include="..\src\platform\etw.hpp" />
     <ClInclude Include="..\src\platform\eventlog.hpp" />
     <ClInclude Include="..\src\platform\file.hpp" />
     <ClInclude Include="..\src\platform\os_info.hpp" />
+    <ClInclude Include="..\src\platform\perf.hpp" />
     <ClInclude Include="..\src\platform\power.hpp" />
     <ClInclude Include="..\src\platform\registry.hpp" />
+    <ClInclude Include="..\src\platform\screen.hpp" />
     <ClInclude Include="..\src\platform\smbios.hpp" />
     <ClInclude Include="..\src\platform\state.hpp" />
     <ClInclude Include="..\src\platform\strings.hpp" />
@@ -181,7 +191,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>advapi32.lib;shell32.lib;wevtapi.lib;powrprof.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;shell32.lib;wevtapi.lib;powrprof.lib;ole32.lib;pdh.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -202,7 +212,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>advapi32.lib;shell32.lib;wevtapi.lib;powrprof.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;shell32.lib;wevtapi.lib;powrprof.lib;ole32.lib;pdh.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

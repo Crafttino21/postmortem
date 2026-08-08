@@ -125,6 +125,7 @@ add_library(postmortem_core STATIC
     src/core/mca/registers.cpp
     src/core/render/decode_view.cpp
     src/core/render/event_view.cpp
+    src/core/render/live_view.cpp
     src/core/text/format.cpp
     src/core/text/table.cpp
     src/core/xml/parse.cpp)
@@ -139,12 +140,15 @@ add_library(postmortem_platform STATIC
     src/platform/arch.cpp
     src/platform/console.cpp
     src/platform/cpu_info.cpp
+    src/platform/etw.cpp
     src/platform/eventlog.cpp
     src/platform/file.cpp
     src/platform/os_info.cpp
+    src/platform/perf.cpp
     src/platform/power.cpp
     src/platform/registry.cpp
     src/platform/smbios.cpp
+    src/platform/screen.cpp
     src/platform/state.cpp
     src/platform/strings.cpp
     src/platform/cpu_topology.cpp)
@@ -156,7 +160,8 @@ target_link_libraries(postmortem_platform
     PRIVATE advapi32    # registry
             wevtapi     # event log
             powrprof    # power schemes and processor power information
-            ole32)      # SHGetKnownFolderPath / CLSIDFromString
+            ole32       # SHGetKnownFolderPath / CLSIDFromString
+            pdh)        # per-core performance counters for `pm live`
 
 # ---------------------------------------------------------------------------
 # pm.exe
@@ -165,6 +170,7 @@ add_executable(pm
     src/main.cpp
     src/commands/common.cpp
     src/commands/decode.cpp
+    src/commands/live.cpp
     src/commands/mitigate.cpp
     src/commands/report.cpp
     src/commands/scan.cpp

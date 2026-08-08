@@ -150,9 +150,14 @@ std::string Timestamp::to_string() const {
            pad(minute, 2) + ":" + pad(second, 2);
 }
 
-Record decode_record(std::span<const std::uint8_t> data) {
+namespace {
+
+// The whole decode, optionally recording each field it reads. decode_record()
+// and decode_record_traced() are thin wrappers so there is exactly one
+// implementation and the traced offsets cannot drift from the real ones.
+Record decode_record_impl(std::span<const std::uint8_t> data, Trace* trace) {
     Record record;
-    const Reader reader(data);
+    const Reader reader(data, trace);
 
     if (reader.size() < kHeaderSize) {
         record.errors.push_back("record is " + std::to_string(reader.size()) +
@@ -199,6 +204,32 @@ Record decode_record(std::span<const std::uint8_t> data) {
     header.flags = reader.value_or(reader.u32(104), 0u);
     header.persistence_info = reader.value_or(reader.u64(108), std::uint64_t{0});
 
+    // UEFI Table N-1, in layout order.
+    reader.note(0, 4, "SignatureStart", header.signature,
+                header.signature == "CPER" ? "valid" : "expected \"CPER\"");
+    reader.note(4, 2, "Revision", text::to_hex(header.revision, 4));
+    reader.note(6, 4, "SignatureEnd", text::to_hex(header.signature_end, 8),
+                header.signature_end == kSignatureEnd ? "valid" : "expected 0xFFFFFFFF");
+    reader.note(10, 2, "SectionCount", std::to_string(header.section_count));
+    reader.note(12, 4, "ErrorSeverity", std::to_string(header.severity_raw),
+                std::string(severity_text(header.severity)));
+    reader.note(16, 4, "ValidationBits", text::to_hex(header.validation_bits, 8),
+                std::string("platform id ") + (header.platform_id_valid ? "valid" : "invalid") +
+                    ", timestamp " + (header.timestamp_valid ? "valid" : "invalid") +
+                    ", partition id " + (header.partition_id_valid ? "valid" : "invalid"));
+    reader.note(20, 4, "RecordLength", std::to_string(header.record_length) + " bytes");
+    reader.note(24, 8, "Timestamp (BCD)", text::to_hex(header.timestamp.raw, 16),
+                header.timestamp.plausible ? header.timestamp.to_string()
+                                           : "does not decode as BCD");
+    reader.note(32, 16, "PlatformID", to_string(header.platform_id));
+    reader.note(48, 16, "PartitionID", to_string(header.partition_id));
+    reader.note(64, 16, "CreatorID", to_string(header.creator_id));
+    reader.note(80, 16, "NotificationType", to_string(header.notification_type),
+                std::string(known_name(header.notification_type)));
+    reader.note(96, 8, "RecordID", text::to_hex(header.record_id, 16));
+    reader.note(104, 4, "Flags", text::to_hex(header.flags, 8));
+    reader.note(108, 8, "PersistenceInfo", text::to_hex(header.persistence_info, 16));
+
     record.ok = true;
 
     if (header.signature_end != kSignatureEnd) {
@@ -239,6 +270,22 @@ Record decode_record(std::span<const std::uint8_t> data) {
         section.body_offset = descriptor->offset;
         section.body_length = descriptor->length;
 
+        // UEFI Table N-2, at its position in the descriptor table.
+        const std::size_t d = descriptor_offset;
+        reader.note(d + 0, 4, "Section " + std::to_string(index) + " offset",
+                    std::to_string(descriptor->offset));
+        reader.note(d + 4, 4, "Section " + std::to_string(index) + " length",
+                    std::to_string(descriptor->length) + " bytes");
+        reader.note(d + 8, 2, "Revision", text::to_hex(descriptor->revision, 4));
+        reader.note(d + 10, 1, "ValidationBits", text::to_hex(descriptor->validation_bits, 2));
+        reader.note(d + 12, 4, "Flags", text::to_hex(descriptor->flags, 8));
+        reader.note(d + 16, 16, "SectionType", to_string(descriptor->section_type),
+                    section.type_name.empty() ? "not decoded by this build" : section.type_name);
+        reader.note(d + 32, 16, "FRU ID", to_string(descriptor->fru_id));
+        reader.note(d + 48, 4, "SectionSeverity", std::to_string(descriptor->severity_raw),
+                    std::string(severity_text(descriptor->severity)));
+        reader.note(d + 52, 20, "FRU Text", descriptor->fru_text);
+
         // The one place an attacker-influenced offset/length pair could walk
         // off the buffer. reader.bytes() is the only way to get at the body,
         // and it refuses when the extent does not fit.
@@ -253,7 +300,19 @@ Record decode_record(std::span<const std::uint8_t> data) {
                                       " has an out-of-range body and was skipped");
         } else {
             section.body_available = true;
-            decode_section_body(section, *body);
+            if (trace != nullptr) {
+                // Offsets inside a section body are relative to the body, so
+                // rebase the trace to report absolute positions.
+                const std::size_t previous_base = trace->base;
+                const int previous_depth = trace->depth;
+                trace->base = descriptor->offset;
+                trace->depth = previous_depth + 1;
+                decode_section_body(section, *body, trace);
+                trace->base = previous_base;
+                trace->depth = previous_depth;
+            } else {
+                decode_section_body(section, *body);
+            }
         }
 
         record.sections.push_back(std::move(section));
@@ -265,6 +324,19 @@ Record decode_record(std::span<const std::uint8_t> data) {
     }
 
     return record;
+}
+
+}  // namespace
+
+Record decode_record(std::span<const std::uint8_t> data) {
+    return decode_record_impl(data, nullptr);
+}
+
+Record decode_record_traced(std::span<const std::uint8_t> data, Trace& trace) {
+    trace.fields.clear();
+    trace.base = 0;
+    trace.depth = 0;
+    return decode_record_impl(data, &trace);
 }
 
 RecordSummary summarise(const Record& record) {

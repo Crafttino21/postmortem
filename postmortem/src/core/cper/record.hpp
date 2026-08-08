@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "core/cper/guid.hpp"
+#include "core/cper/reader.hpp"
 #include "core/cpu/signature.hpp"
 #include "core/mca/registers.hpp"
 
@@ -255,6 +256,11 @@ struct Record {
 
 [[nodiscard]] Record decode_record(std::span<const std::uint8_t> data);
 
+// Same decode, but also records every field as it is consumed so
+// `pm decode --walk` can step through the record byte by byte. The trace is
+// empty when the record could not be decoded at all.
+[[nodiscard]] Record decode_record_traced(std::span<const std::uint8_t> data, Trace& trace);
+
 // Spec §6: "Lead with the verdict, then the evidence." This condenses a whole
 // record into the one sentence that belongs on the first line.
 struct RecordSummary {
@@ -266,6 +272,7 @@ struct RecordSummary {
 
 // Decodes one section body given its type GUID. Exposed for tests and for
 // milestone 3's `pm decode`, which can be handed a bare section.
-void decode_section_body(Section& section, std::span<const std::uint8_t> body);
+void decode_section_body(Section& section, std::span<const std::uint8_t> body,
+                         Trace* trace = nullptr);
 
 }  // namespace postmortem::cper
