@@ -127,6 +127,7 @@ add_library(postmortem_core STATIC
     src/core/render/decode_view.cpp
     src/core/render/event_view.cpp
     src/core/render/live_view.cpp
+    src/core/render/watch_view.cpp
     src/core/text/format.cpp
     src/core/text/table.cpp
     src/core/xml/parse.cpp)
@@ -144,6 +145,7 @@ add_library(postmortem_platform STATIC
     src/platform/etw.cpp
     src/platform/eventlog.cpp
     src/platform/file.cpp
+    src/platform/memory.cpp
     src/platform/os_info.cpp
     src/platform/perf.cpp
     src/platform/power.cpp
@@ -152,6 +154,7 @@ add_library(postmortem_platform STATIC
     src/platform/screen.cpp
     src/platform/state.cpp
     src/platform/strings.cpp
+    src/platform/symbols.cpp
     src/platform/cpu_topology.cpp)
 
 target_include_directories(postmortem_platform PUBLIC src)
@@ -162,7 +165,9 @@ target_link_libraries(postmortem_platform
             wevtapi     # event log
             powrprof    # power schemes and processor power information
             ole32       # SHGetKnownFolderPath / CLSIDFromString
-            pdh)        # per-core performance counters for `pm live`
+            pdh         # per-core performance counters for `pm live`
+            dbghelp     # symbolising sampled stacks
+            psapi)      # module and memory-region enumeration
 
 # ---------------------------------------------------------------------------
 # pm.exe
@@ -178,7 +183,8 @@ add_executable(pm
     src/commands/status.cpp
     src/commands/timeline.cpp
     src/commands/topology.cpp
-    src/commands/watch.cpp)
+    src/commands/watch.cpp
+    src/commands/watchmem.cpp)
 
 target_link_libraries(pm PRIVATE
     postmortem_options

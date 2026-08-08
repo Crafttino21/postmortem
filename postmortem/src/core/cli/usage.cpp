@@ -20,6 +20,8 @@ std::string general_usage() {
         "  decode --mci-stat 0xbea...      Decode a single MCA register value\n"
         "  topology                        APIC -> core/thread/CCD map\n"
         "  live [--interval 1s]            Live view of what the CPU is doing\n"
+        "  live --stacks                   Live sampled call stacks (elevated)\n"
+        "  watch-mem --pid P --at ADDR     Live byte view of a process's memory\n"
         "  mitigate list|apply|revert <n>  Mitigation control\n"
         "  report [--format json|md]       Export\n"
         "\n"
@@ -170,6 +172,30 @@ std::string command_usage(Command c) {
                 "bus traffic. Those need Intel PT / AMD IBS or MSR access, which means a\n"
                 "kernel driver, which this tool does not use (spec section 2). Everything\n"
                 "here comes from documented user-mode APIs.\n";
+        case Command::WatchMem:
+            return
+                "pm watch-mem - watch a region of another process's memory change\n"
+                "\n"
+                "Usage:\n"
+                "  pm watch-mem --pid <id|name> --regions\n"
+                "  pm watch-mem --pid <id|name> --at <address> [--len 256]\n"
+                "  pm watch-mem --pid <id|name> --module <name> [--offset <n>]\n"
+                "\n"
+                "Options:\n"
+                "  --pid <id|name>   Process id, or an executable name if it is unambiguous.\n"
+                "  --regions         List the committed regions, so you can pick an address.\n"
+                "  --at <address>    Where to start reading. 0x.. is hex.\n"
+                "  --module <name>   Start at a loaded module's base instead, plus --offset.\n"
+                "  --len <n>         How many bytes, up to 4096. Default 256.\n"
+                "  --interval <d>    Refresh period. Default 1s, minimum 50ms.\n"
+                "\n"
+                "Bytes that changed since the last tick are shown in red, ones that changed\n"
+                "earlier in yellow, and unreadable bytes as ??. Keys: q quit, space pause,\n"
+                "r reset the change history.\n"
+                "\n"
+                "The target is never suspended and nothing is ever written to it. Because it\n"
+                "keeps running while being read, a multi-byte value can be caught mid-write\n"
+                "and read torn. Kernel memory is not reachable from user mode at all.\n";
         case Command::None:
             break;
     }

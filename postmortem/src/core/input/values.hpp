@@ -47,11 +47,15 @@ struct IntegerResult {
 struct DurationResult {
     bool ok = false;
     std::int64_t seconds = 0;
+    // Sub-second spans matter for the live views' refresh interval, where
+    // whole seconds would be far too coarse.
+    std::int64_t milliseconds = 0;
     std::string error;
 };
 
-// "90d", "12h", "30m", "6w", "1y", or plain digits meaning days - the form
-// spec §5 writes as `--since 90d`.
+// "90d", "12h", "30m", "500ms", "6w", "1y", or plain digits meaning days - the
+// form spec §5 writes as `--since 90d`. "ms" is checked before "m" so
+// milliseconds are not read as minutes.
 [[nodiscard]] DurationResult parse_duration(std::string_view text);
 
 }  // namespace postmortem::input

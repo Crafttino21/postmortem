@@ -17,6 +17,7 @@
 #include "commands/timeline.hpp"
 #include "commands/topology.hpp"
 #include "commands/watch.hpp"
+#include "commands/watchmem.hpp"
 #include "core/cli/args.hpp"
 #include "core/cli/usage.hpp"
 #include "core/text/table.hpp"
@@ -131,6 +132,9 @@ int main() {
 
         case cli::Command::Live:
             return commands::run_live(cmdline, style);
+
+        case cli::Command::WatchMem:
+            return commands::run_watch_mem(cmdline, style);
 
         case cli::Command::None:
             break;

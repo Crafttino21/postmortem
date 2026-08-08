@@ -29,6 +29,7 @@ enum class Command {
     Mitigate,
     Report,
     Live,      // not in spec §5; added on request
+    WatchMem,  // not in spec §5; added on request
 };
 
 // Spec §5: global flags, accepted before or after the subcommand.

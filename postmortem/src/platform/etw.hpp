@@ -33,6 +33,27 @@ struct EtwCounts {
     std::uint64_t unattributed = 0;
 };
 
+// One distinct call stack seen during the interval, with how often it was
+// sampled. Addresses are raw; symbolisation happens on the rendering side,
+// never in the trace callback.
+struct StackSample {
+    std::uint32_t process_id = 0;
+    std::vector<std::uint64_t> frames;   // innermost first
+    std::uint64_t count = 0;
+};
+
+struct StackSamples {
+    std::vector<StackSample> stacks;   // most frequent first
+    std::uint64_t total = 0;
+    std::uint64_t kernel_samples = 0;
+    std::uint64_t user_samples = 0;
+
+    // Samples dropped because the distinct-stack cap was reached. Reported
+    // rather than hidden: a truncated profile that looks complete is worse
+    // than one that admits it.
+    std::uint64_t dropped = 0;
+};
+
 class EtwSession {
 public:
     // Public because ETW's callbacks are free functions that receive it as the
@@ -49,16 +70,26 @@ public:
     // tracing. Returns false and fills `error` when that is not possible -
     // most often because the process is not elevated, or because something
     // else already owns the kernel logger (only one exists system-wide).
-    [[nodiscard]] bool start(unsigned processor_count, std::string& error);
+    // `sample_stacks` additionally turns on sample-based profiling with stack
+    // tracing: the kernel captures a full call stack inside the profiling
+    // interrupt, so nothing is ever suspended. It needs
+    // SeSystemProfilePrivilege, which start() enables on the process token.
+    [[nodiscard]] bool start(unsigned processor_count, bool sample_stacks, std::string& error);
     void stop();
     [[nodiscard]] bool running() const { return running_; }
+    [[nodiscard]] bool sampling_stacks() const { return sampling_stacks_; }
 
     // Snapshot and reset the counters.
     [[nodiscard]] EtwCounts take();
 
+    // Snapshot and reset the aggregated stacks. Empty unless started with
+    // sample_stacks.
+    [[nodiscard]] StackSamples take_stacks(std::size_t limit = 20);
+
 private:
     Impl* impl_ = nullptr;
     bool running_ = false;
+    bool sampling_stacks_ = false;
 };
 
 }  // namespace postmortem::platform

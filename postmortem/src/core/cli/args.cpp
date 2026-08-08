@@ -51,7 +51,21 @@ constexpr std::array<OptionSpec, 6> kDecodeOptions{{
     {"walk", false},
 }};
 constexpr std::array<OptionSpec, 1> kMitigateOptions{{{"scheme", true}}};
-constexpr std::array<OptionSpec, 2> kLiveOptions{{{"interval", true}, {"no-etw", false}}};
+constexpr std::array<OptionSpec, 3> kLiveOptions{{
+    {"interval", true},
+    {"no-etw", false},
+    // Sampled call stacks from the ETW profiling interrupt.
+    {"stacks", false},
+}};
+constexpr std::array<OptionSpec, 7> kWatchMemOptions{{
+    {"pid", true},
+    {"at", true},
+    {"len", true},
+    {"module", true},
+    {"offset", true},
+    {"interval", true},
+    {"regions", false},
+}};
 // `report` builds on the same event query as scan and timeline, so it accepts
 // --since too rather than silently always covering the whole log.
 constexpr std::array<OptionSpec, 3> kReportOptions{{
@@ -68,7 +82,7 @@ struct CommandSpec {
     std::span<const OptionSpec> options;
 };
 
-constexpr std::array<CommandSpec, 11> kCommands{{
+constexpr std::array<CommandSpec, 12> kCommands{{
     {"status",   Command::Status,   1, true,  {}},
     {"scan",     Command::Scan,     4, true,  kScanOptions},
     {"show",     Command::Show,     4, true,  kScanOptions},
@@ -81,6 +95,7 @@ constexpr std::array<CommandSpec, 11> kCommands{{
     {"report",   Command::Report,  10, true,  kReportOptions},
     // Milestone 0: not part of the spec's build order, added on request.
     {"live",     Command::Live,     0, true,  kLiveOptions},
+    {"watch-mem", Command::WatchMem, 0, true, kWatchMemOptions},
 }};
 
 const CommandSpec* find_command(std::string_view name) {

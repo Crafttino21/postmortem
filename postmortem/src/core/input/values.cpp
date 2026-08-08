@@ -231,28 +231,52 @@ DurationResult parse_duration(std::string_view text) {
         return result;
     }
 
-    char unit = 'd';   // a bare number means days, matching "--since 90d"
-    if (const char last = compact.back(); last < '0' || last > '9') {
-        unit = static_cast<char>(std::tolower(static_cast<unsigned char>(last)));
-        compact.pop_back();
+    std::string unit = "d";   // a bare number means days, matching "--since 90d"
+
+    // Two-character units first: "500ms" must not be read as 500 minutes with
+    // a stray 's', which is the kind of mistake that would silently turn a
+    // half-second refresh into eight hours.
+    const auto lower = [](char c) {
+        return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    };
+    if (compact.size() >= 2) {
+        const std::string tail{lower(compact[compact.size() - 2]),
+                               lower(compact[compact.size() - 1])};
+        if (tail == "ms") {
+            unit = "ms";
+            compact.erase(compact.size() - 2);
+        }
+    }
+    if (unit == "d") {
+        if (const char last = compact.back(); last < '0' || last > '9') {
+            unit = std::string(1, lower(last));
+            compact.pop_back();
+        }
     }
     if (compact.empty()) {
         result.error = "the duration has a unit but no number";
         return result;
     }
 
+    // In milliseconds, so sub-second intervals survive.
     std::int64_t multiplier = 0;
-    switch (unit) {
-        case 's': multiplier = 1; break;
-        case 'm': multiplier = 60; break;
-        case 'h': multiplier = 3600; break;
-        case 'd': multiplier = 86400; break;
-        case 'w': multiplier = 7 * 86400; break;
-        case 'y': multiplier = 365 * 86400; break;
-        default:
-            result.error = std::string("unknown duration unit '") + unit +
-                           "'; use s, m, h, d, w or y";
-            return result;
+    if (unit == "ms") {
+        multiplier = 1;
+    } else if (unit == "s") {
+        multiplier = 1000;
+    } else if (unit == "m") {
+        multiplier = 60 * 1000;
+    } else if (unit == "h") {
+        multiplier = 3600 * 1000;
+    } else if (unit == "d") {
+        multiplier = 86400 * 1000;
+    } else if (unit == "w") {
+        multiplier = 7 * 86400LL * 1000;
+    } else if (unit == "y") {
+        multiplier = 365 * 86400LL * 1000;
+    } else {
+        result.error = "unknown duration unit '" + unit + "'; use ms, s, m, h, d, w or y";
+        return result;
     }
 
     std::int64_t value = 0;
@@ -271,7 +295,8 @@ DurationResult parse_duration(std::string_view text) {
     }
 
     result.ok = true;
-    result.seconds = value * multiplier;
+    result.milliseconds = value * multiplier;
+    result.seconds = result.milliseconds / 1000;
     return result;
 }
 

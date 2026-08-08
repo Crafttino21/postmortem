@@ -12,6 +12,7 @@
 #include "core/events/whea.hpp"
 #include "core/input/values.hpp"
 #include "core/render/live_view.hpp"
+#include "core/render/watch_view.hpp"
 #include "core/text/format.hpp"
 #include "platform/cpu_info.hpp"
 #include "platform/cpu_topology.hpp"
@@ -20,6 +21,7 @@
 #include "platform/os_info.hpp"
 #include "platform/perf.hpp"
 #include "platform/screen.hpp"
+#include "platform/symbols.hpp"
 
 namespace postmortem::commands {
 namespace {
@@ -63,12 +65,12 @@ int run_live(const cli::CommandLine& cmdline, const text::Style& style) {
     double interval = 1.0;
     if (const std::string* text = cmdline.option("interval")) {
         const input::DurationResult parsed = input::parse_duration(*text);
-        if (!parsed.ok || parsed.seconds <= 0) {
+        if (!parsed.ok || parsed.milliseconds <= 0) {
             write_error("--interval: " + (parsed.ok ? std::string("must be positive")
                                                     : parsed.error));
             return exit_code::kUsage;
         }
-        interval = static_cast<double>(parsed.seconds);
+        interval = static_cast<double>(parsed.milliseconds) / 1000.0;
     }
     // PDH rate counters need a measurable window; below a quarter second the
     // numbers are noise rather than data.
@@ -86,6 +88,8 @@ int run_live(const cli::CommandLine& cmdline, const text::Style& style) {
 
     // ETW is optional: it needs elevation, and the whole view still works
     // without it (spec §2's degrade-gracefully rule).
+    const bool want_stacks = cmdline.has_option("stacks");
+
     platform::EtwSession etw;
     std::string etw_note;
     if (cmdline.has_option("no-etw")) {
@@ -94,8 +98,17 @@ int run_live(const cli::CommandLine& cmdline, const text::Style& style) {
         etw_note = "needs an elevated prompt";
     } else {
         std::string error;
-        if (!etw.start(cpu.logical_processors, error)) etw_note = error;
+        if (!etw.start(cpu.logical_processors, want_stacks, error)) etw_note = error;
     }
+    if (want_stacks && !etw.sampling_stacks()) {
+        write_error("--stacks needs the ETW session, which did not start: " +
+                    (etw_note.empty() ? std::string("unknown reason") : etw_note));
+        return exit_code::kFailure;
+    }
+
+    // DbgHelp is not thread-safe and a lookup is far too slow for the sampling
+    // callback, so symbolisation happens here on the render thread.
+    platform::SymbolResolver symbols;
 
     // How many WHEA records the log already holds, so the feed can say
     // "nothing new" rather than looking empty.
@@ -241,8 +254,47 @@ int run_live(const cli::CommandLine& cmdline, const text::Style& style) {
 
         const platform::ScreenSize size =
             full_screen ? screen.size() : platform::ScreenSize{100, 60};
-        const std::string frame =
-            render::live_frame(snapshot, style, size.columns, size.rows);
+
+        std::string frame;
+        if (want_stacks) {
+            // Symbolise here, never in the ETW callback: a DbgHelp lookup is
+            // orders of magnitude slower than the sampling rate.
+            const platform::StackSamples raw = etw.take_stacks(12);
+
+            render::StackSnapshot stacks;
+            stacks.total_samples = raw.total;
+            stacks.kernel_samples = raw.kernel_samples;
+            stacks.user_samples = raw.user_samples;
+            stacks.dropped = raw.dropped;
+            stacks.depth = cmdline.global.verbose ? 12u : 5u;
+
+            for (const platform::StackSample& sample_stack : raw.stacks) {
+                render::HotStack hot;
+                hot.count = sample_stack.count;
+                hot.process_id = sample_stack.process_id;
+                hot.share_percent =
+                    raw.total > 0 ? static_cast<double>(sample_stack.count) * 100.0 /
+                                        static_cast<double>(raw.total)
+                                  : 0.0;
+                for (const std::uint64_t address : sample_stack.frames) {
+                    render::StackFrameLine line;
+                    line.kernel = platform::SymbolResolver::is_kernel_address(address);
+                    line.text = symbols.resolve(address, sample_stack.process_id);
+                    hot.frames.push_back(std::move(line));
+                    if (hot.frames.size() >= stacks.depth) break;
+                }
+                stacks.stacks.push_back(std::move(hot));
+            }
+            stacks.symbols_available = symbols.any_named();
+            stacks.notes.push_back(
+                "Sampled by the kernel inside the profiling interrupt - nothing is suspended. "
+                "This is the call stack, not the instruction stream; per-instruction tracing "
+                "would need a driver.");
+
+            frame = render::stack_frame(stacks, style, size.columns, size.rows);
+        } else {
+            frame = render::live_frame(snapshot, style, size.columns, size.rows);
+        }
 
         if (full_screen) {
             screen.draw(frame);

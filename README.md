@@ -71,6 +71,8 @@ pm decode --cper <hex|@file>       Decode a CPER blob standalone
 pm decode --mci-stat 0xbea...      Decode a single MCA register value
 pm topology                        APIC -> core/thread/CCD map
 pm live [--interval 1s]            Live view of what the CPU is doing
+pm live --stacks                   Live sampled call stacks (elevated)
+pm watch-mem --pid P --at ADDR     Live byte view of a process's memory
 pm mitigate list|apply|revert <n>  Mitigation control
 pm report [--format json|md]       Export
 ```
@@ -344,6 +346,79 @@ registers needs MSR access — both require a kernel driver, which this tool doe
 not use. Actual bus traffic needs a logic analyzer on the board. Everything in
 `pm live` comes from documented user-mode APIs: PDH counters,
 `CallNtPowerInformation`, ETW and `EvtSubscribe`.
+
+#### `--stacks` — live sampled call stacks
+
+With `--stacks` (elevated), the ETW session additionally turns on sample-based
+profiling with stack tracing. The kernel captures a full call stack **inside
+the profiling interrupt**, so nothing is ever suspended:
+
+```
+> pm live --stacks
+
+Hottest stacks   4180 samples this interval   kernel 62%  user 38%
+
+    1204   29%  System (0)
+                ntoskrnl!KiIdleLoop
+                  ntoskrnl!KiIdleSchedule
+     418   10%  myapp.exe (4812)
+                myapp!compute_hash+0x2c
+                  myapp!worker_loop+0x118
+                    kernel32!BaseThreadInitThunk+0x1d
+```
+
+Innermost frame first, each deeper frame indented. `--verbose` shows 12 frames
+per stack instead of 5. Kernel frames are highlighted.
+
+Symbols come from DbgHelp using whatever is available locally — a PDB beside
+the binary, or the module's export table. **No symbol server is contacted**, so
+the view never stalls downloading PDBs; frames with no symbol read as
+`module+0x1a2c40`, and the display says so when nothing could be named.
+
+Symbolisation happens on the render thread, never in the ETW callback: a
+DbgHelp lookup is orders of magnitude slower than the sampling rate and would
+drop buffers.
+
+### `pm watch-mem`
+
+A live hex view of another process's memory, highlighting bytes as they change.
+
+```
+> pm watch-mem --pid explorer --at 0x7FFE0000 --len 48 --interval 300ms
+
+explorer.exe (14700)   0x000000007FFE0000   48 bytes
+2026-08-08 19:15:51   tick 8
+
+  Offset    Bytes
+  7FFE0000  00 00 00 00 00 00 A0 0F  33 47 81 07 2E 00 00 00  ........3G......
+  7FFE0010  2E 00 00 00 33 8D 57 90  59 27 DD 01 59 27 DD 01  ....3.W.Y'..Y'..
+  7FFE0020  00 30 77 3C EF FF FF FF  EF FF FF FF 64 86 64 86  .0w<........d.d.
+
+  6 byte(s) changed this tick, 8 of 48 have ever changed
+  red = changed this tick, yellow = changed earlier, ?? = not readable
+```
+
+That address is `KUSER_SHARED_DATA`, mapped into every process, and the six
+moving bytes are its interrupt-time and system-time fields — a good way to
+check the view is working.
+
+Finding an address:
+
+```
+pm watch-mem --pid notepad --regions        list the committed regions
+pm watch-mem --pid 4812 --at 0x7FF6A2C10000 --len 256
+pm watch-mem --pid myapp --module myapp.exe --offset 0x1000
+```
+
+`--pid` takes a process id or an executable name; an ambiguous name lists the
+candidates rather than picking one. Keys: `q` quit, `space` pause, `r` reset
+the change history.
+
+**The target is never suspended and nothing is ever written to it.** Because it
+keeps running while being read, a multi-byte value can be caught mid-write and
+read torn — you see a state the memory genuinely passed through, just not
+necessarily one the program meant to be observable. Protected and
+higher-integrity processes refuse to open at all, elevated or not.
 
 ### `pm mitigate`
 

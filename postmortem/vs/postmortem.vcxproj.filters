@@ -82,6 +82,9 @@
     <ClCompile Include="..\src\commands\watch.cpp">
       <Filter>src\commands</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\commands\watchmem.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\core\cli\args.cpp">
       <Filter>src\core\cli</Filter>
     </ClCompile>
@@ -136,6 +139,9 @@
     <ClCompile Include="..\src\core\render\live_view.cpp">
       <Filter>src\core\render</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\core\render\watch_view.cpp">
+      <Filter>src\core\render</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\core\text\format.cpp">
       <Filter>src\core\text</Filter>
     </ClCompile>
@@ -169,6 +175,9 @@
     <ClCompile Include="..\src\platform\file.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\platform\memory.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\platform\os_info.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
@@ -191,6 +200,9 @@
       <Filter>src\platform</Filter>
     </ClCompile>
     <ClCompile Include="..\src\platform\strings.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\platform\symbols.cpp">
       <Filter>src\platform</Filter>
     </ClCompile>
   </ItemGroup>
@@ -223,6 +235,9 @@
       <Filter>src\commands</Filter>
     </ClInclude>
     <ClInclude Include="..\src\commands\watch.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\commands\watchmem.hpp">
       <Filter>src\commands</Filter>
     </ClInclude>
     <ClInclude Include="..\src\core\cli\args.hpp">
@@ -279,6 +294,9 @@
     <ClInclude Include="..\src\core\render\live_view.hpp">
       <Filter>src\core\render</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\render\watch_view.hpp">
+      <Filter>src\core\render</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\core\text\format.hpp">
       <Filter>src\core\text</Filter>
     </ClInclude>
@@ -312,6 +330,9 @@
     <ClInclude Include="..\src\platform\file.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\platform\memory.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\platform\os_info.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
@@ -334,6 +355,9 @@
       <Filter>src\platform</Filter>
     </ClInclude>
     <ClInclude Include="..\src\platform\strings.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\platform\symbols.hpp">
       <Filter>src\platform</Filter>
     </ClInclude>
   </ItemGroup>

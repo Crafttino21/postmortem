@@ -48,6 +48,9 @@
     <ClCompile Include="..\tests\test_table.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\test_watch.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\core\cli\args.cpp">
       <Filter>core under test</Filter>
     </ClCompile>
@@ -100,6 +103,9 @@
       <Filter>core under test</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\render\live_view.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\render\watch_view.cpp">
       <Filter>core under test</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\text\format.cpp">

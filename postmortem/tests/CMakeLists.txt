@@ -14,7 +14,8 @@ add_executable(postmortem_tests
     test_live.cpp
     test_mca.cpp
     test_signature.cpp
-    test_table.cpp)
+    test_table.cpp
+    test_watch.cpp)
 
 target_link_libraries(postmortem_tests PRIVATE
     postmortem_options

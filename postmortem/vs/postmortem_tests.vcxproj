@@ -39,6 +39,7 @@
     <ClCompile Include="..\tests\test_mca.cpp" />
     <ClCompile Include="..\tests\test_signature.cpp" />
     <ClCompile Include="..\tests\test_table.cpp" />
+    <ClCompile Include="..\tests\test_watch.cpp" />
     <ClCompile Include="..\src\core\cli\args.cpp" />
     <ClCompile Include="..\src\core\cli\usage.cpp" />
     <ClCompile Include="..\src\core\cper\guid.cpp" />
@@ -57,6 +58,7 @@
     <ClCompile Include="..\src\core\render\decode_view.cpp" />
     <ClCompile Include="..\src\core\render\event_view.cpp" />
     <ClCompile Include="..\src\core\render\live_view.cpp" />
+    <ClCompile Include="..\src\core\render\watch_view.cpp" />
     <ClCompile Include="..\src\core\text\format.cpp" />
     <ClCompile Include="..\src\core\text\table.cpp" />
     <ClCompile Include="..\src\core\xml\parse.cpp" />
