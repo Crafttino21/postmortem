@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="tests">
+      <UniqueIdentifier>{00000008-01dd-493b-8000-0000801dd93b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core under test">
+      <UniqueIdentifier>{63e8b052-cee7-46e8-863e-8b052cee76e8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test_args.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_cper.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_events.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_input.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_json.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_json_reader.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_main.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_mca.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_signature.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_table.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cli\args.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cli\usage.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cper\guid.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cper\record.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cper\sections.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cpu\signature.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\events\analysis.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\events\crash_timeline.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\events\event.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\events\whea.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\input\values.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\json\reader.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\json\writer.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\mca\registers.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\render\decode_view.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\render\event_view.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\text\format.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\text\table.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\xml\parse.cpp">
+      <Filter>core under test</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="check.hpp">
+      <Filter>tests</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

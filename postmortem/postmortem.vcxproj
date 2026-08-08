@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Visual Studio project for pm.exe.
+
+  This mirrors CMakeLists.txt, which remains the build the spec mandates
+  (§3). Keep the two in step: any file added here must also be added to the
+  matching source list in CMakeLists.txt, and vice versa.
+
+  Settings deliberately matched to the CMake build:
+    - x64 only (spec §3); the Win32 configurations are intentionally absent
+
+    - C++20, /permissive-, /W4, /utf-8
+    - static CRT, so pm.exe needs no redistributable (spec §2)
+    - src\ on the include path, which is what the "core/..." includes resolve against
+
+  Two things that must NOT be listed here, both of which define their own main()
+  and break the link with "main ist bereits in ... definiert":
+    - anything under a CMake build tree, in particular
+      CMakeFiles\*\CompilerIdCXX\CMakeCXXCompilerId.cpp, which CMake generates
+      purely to identify the compiler
+    - tests\*.cpp, which belong to tests\postmortem_tests.vcxproj
+
+  One constraint MSBuild imposes that CMake does not: every object file of a
+  project lands in one flat intermediate directory, so no two .cpp files here
+  may share a basename or the second silently overwrites the first's .obj.
+-->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -17,7 +34,98 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CLAUDE.md" />
+    <None Include="CMakeLists.txt" />
+    <None Include="CMakePresets.json" />
+    <None Include="docs\postmortem-spec.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\commands\common.cpp" />
+    <ClCompile Include="src\commands\decode.cpp" />
+    <ClCompile Include="src\commands\mitigate.cpp" />
+    <ClCompile Include="src\commands\report.cpp" />
+    <ClCompile Include="src\commands\scan.cpp" />
+    <ClCompile Include="src\commands\status.cpp" />
+    <ClCompile Include="src\commands\timeline.cpp" />
+    <ClCompile Include="src\commands\topology.cpp" />
+    <ClCompile Include="src\commands\watch.cpp" />
+    <ClCompile Include="src\core\cli\args.cpp" />
+    <ClCompile Include="src\core\cli\usage.cpp" />
+    <ClCompile Include="src\core\cper\guid.cpp" />
+    <ClCompile Include="src\core\cper\record.cpp" />
+    <ClCompile Include="src\core\cper\sections.cpp" />
+    <ClCompile Include="src\core\cpu\signature.cpp" />
+    <ClCompile Include="src\core\events\analysis.cpp" />
+    <ClCompile Include="src\core\events\crash_timeline.cpp" />
+    <ClCompile Include="src\core\events\event.cpp" />
+    <ClCompile Include="src\core\events\whea.cpp" />
+    <ClCompile Include="src\core\input\values.cpp" />
+    <ClCompile Include="src\core\json\reader.cpp" />
+    <ClCompile Include="src\core\json\writer.cpp" />
+    <ClCompile Include="src\core\mca\registers.cpp" />
+    <ClCompile Include="src\core\render\decode_view.cpp" />
+    <ClCompile Include="src\core\render\event_view.cpp" />
+    <ClCompile Include="src\core\text\format.cpp" />
+    <ClCompile Include="src\core\text\table.cpp" />
+    <ClCompile Include="src\core\xml\parse.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\platform\arch.cpp" />
+    <ClCompile Include="src\platform\console.cpp" />
+    <ClCompile Include="src\platform\cpu_info.cpp" />
+    <ClCompile Include="src\platform\cpu_topology.cpp" />
+    <ClCompile Include="src\platform\eventlog.cpp" />
+    <ClCompile Include="src\platform\file.cpp" />
+    <ClCompile Include="src\platform\os_info.cpp" />
+    <ClCompile Include="src\platform\power.cpp" />
+    <ClCompile Include="src\platform\registry.cpp" />
+    <ClCompile Include="src\platform\smbios.cpp" />
+    <ClCompile Include="src\platform\state.cpp" />
+    <ClCompile Include="src\platform\strings.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\commands\common.hpp" />
+    <ClInclude Include="src\commands\decode.hpp" />
+    <ClInclude Include="src\commands\mitigate.hpp" />
+    <ClInclude Include="src\commands\report.hpp" />
+    <ClInclude Include="src\commands\scan.hpp" />
+    <ClInclude Include="src\commands\status.hpp" />
+    <ClInclude Include="src\commands\timeline.hpp" />
+    <ClInclude Include="src\commands\topology.hpp" />
+    <ClInclude Include="src\commands\watch.hpp" />
+    <ClInclude Include="src\core\cli\args.hpp" />
+    <ClInclude Include="src\core\cli\usage.hpp" />
+    <ClInclude Include="src\core\cper\guid.hpp" />
+    <ClInclude Include="src\core\cper\reader.hpp" />
+    <ClInclude Include="src\core\cper\record.hpp" />
+    <ClInclude Include="src\core\cpu\signature.hpp" />
+    <ClInclude Include="src\core\events\analysis.hpp" />
+    <ClInclude Include="src\core\events\crash_timeline.hpp" />
+    <ClInclude Include="src\core\events\event.hpp" />
+    <ClInclude Include="src\core\events\whea.hpp" />
+    <ClInclude Include="src\core\input\values.hpp" />
+    <ClInclude Include="src\core\json\reader.hpp" />
+    <ClInclude Include="src\core\json\writer.hpp" />
+    <ClInclude Include="src\core\mca\registers.hpp" />
+    <ClInclude Include="src\core\render\decode_view.hpp" />
+    <ClInclude Include="src\core\render\event_view.hpp" />
+    <ClInclude Include="src\core\text\format.hpp" />
+    <ClInclude Include="src\core\text\table.hpp" />
+    <ClInclude Include="src\core\version.hpp" />
+    <ClInclude Include="src\core\xml\parse.hpp" />
+    <ClInclude Include="src\platform\arch.hpp" />
+    <ClInclude Include="src\platform\console.hpp" />
+    <ClInclude Include="src\platform\cpu_info.hpp" />
+    <ClInclude Include="src\platform\cpu_topology.hpp" />
+    <ClInclude Include="src\platform\eventlog.hpp" />
+    <ClInclude Include="src\platform\file.hpp" />
+    <ClInclude Include="src\platform\os_info.hpp" />
+    <ClInclude Include="src\platform\power.hpp" />
+    <ClInclude Include="src\platform\registry.hpp" />
+    <ClInclude Include="src\platform\smbios.hpp" />
+    <ClInclude Include="src\platform\state.hpp" />
+    <ClInclude Include="src\platform\strings.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
@@ -27,19 +135,6 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -53,97 +148,71 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" >
+  <ImportGroup Label="Shared">
   </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-       <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-       <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
+  <PropertyGroup>
+    <TargetName>pm</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus /Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <!-- Keep in step with target_link_libraries in CMakeLists.txt:
+           advapi32 registry, shell32 CommandLineToArgvW, wevtapi event log,
+           powrprof power schemes, ole32 GUID and known-folder helpers. -->
+      <AdditionalDependencies>advapi32.lib;shell32.lib;wevtapi.lib;powrprof.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
-       <EnableSegmentHeap>true</EnableSegmentHeap>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus /Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <!-- Keep in step with target_link_libraries in CMakeLists.txt:
+           advapi32 registry, shell32 CommandLineToArgvW, wevtapi event log,
+           powrprof power schemes, ole32 GUID and known-folder helpers. -->
+      <AdditionalDependencies>advapi32.lib;shell32.lib;wevtapi.lib;powrprof.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
-       <EnableSegmentHeap>true</EnableSegmentHeap>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
   </ItemDefinitionGroup>
-
-  <ItemGroup></ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

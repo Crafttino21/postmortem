@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/../out/build/${presetName}",
+      "cacheVariables": {
+        "POSTMORTEM_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "base",
+      "displayName": "Debug (MSVC x64)"
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "displayName": "Release (MSVC x64)"
+    },
+    {
+      "name": "ninja-debug",
+      "hidden": false,
+      "displayName": "Debug (Ninja, needs an x64 Native Tools prompt)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "POSTMORTEM_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "inherits": "ninja-debug",
+      "displayName": "Release (Ninja, needs an x64 Native Tools prompt)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release"
+    },
+    {
+      "name": "ninja-debug",
+      "configurePreset": "ninja-debug"
+    },
+    {
+      "name": "ninja-release",
+      "configurePreset": "ninja-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "configurePreset": "ninja-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

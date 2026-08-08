@@ -1,0 +1,40 @@
+# Build artifacts specific to this project.
+#
+# The repository-root .gitignore is the Visual Studio template and already
+# covers out/, x64/, .vs/ and *.user. What it does not cover is the CMake side,
+# which is what this file is for.
+#
+# Where build output actually lands:
+#   ../out/build/<preset>/   cmake --preset debug|release   (repo root, on
+#                            purpose: keeping it out of this folder stops
+#                            Visual Studio offering to add CMake's generated
+#                            sources to postmortem.vcxproj)
+#   ../x64/<config>/         MSBuild, linker output
+#   x64/<config>/            MSBuild, intermediate object files
+
+# CMake, when configured in-tree rather than through a preset
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+Testing/
+
+# Per-developer presets: CMake reads these automatically and they are meant to
+# hold local paths and toolchains, so they never belong in the repository.
+CMakeUserPresets.json
+
+# Compilation database, generated for clangd and clang-tidy
+compile_commands.json
+
+# Editor and tooling state
+.cache/
+.idea/
+.vscode/
+
+# Scratch files from decoding sessions - captured blobs and exported logs can
+# contain machine identifiers, so they are ignored rather than committed by
+# accident.
+*.evtx
+*.cper

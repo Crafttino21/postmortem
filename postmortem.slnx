@@ -1,7 +1,7 @@
 <Solution>
   <Configurations>
     <Platform Name="x64" />
-    <Platform Name="x86" />
   </Configurations>
   <Project Path="postmortem/postmortem.vcxproj" />
+  <Project Path="postmortem/tests/postmortem_tests.vcxproj" />
 </Solution>

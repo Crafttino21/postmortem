@@ -1,17 +1,313 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solution Explorer layout, mirroring the on-disk tree. Generated to match
+  the CMake source lists; if you add a file, add it to both.
+-->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Quelldateien">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="src">
+      <UniqueIdentifier>{00000000-001e-457c-8000-00000001e57c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headerdateien">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="src\commands">
+      <UniqueIdentifier>{3dd55713-308d-43ba-83dd-55713308d3ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Ressourcendateien">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{01108de1-bab6-4acb-8011-08de1bab6acb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\cli">
+      <UniqueIdentifier>{3dd5573f-8d06-4a10-83dd-5573f8d06a10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\cper">
+      <UniqueIdentifier>{a42ba585-2a65-4711-8a42-ba5852a65711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\cpu">
+      <UniqueIdentifier>{3dd5573f-8d06-4a31-83dd-5573f8d06a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\events">
+      <UniqueIdentifier>{31daabd9-6a86-4238-831d-aabd96a86238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\input">
+      <UniqueIdentifier>{0255b325-1af9-470e-8025-5b3251af970e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\json">
+      <UniqueIdentifier>{a42ba585-2b56-45e9-8a42-ba5852b565e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\mca">
+      <UniqueIdentifier>{3dd5573f-8d09-43ab-83dd-5573f8d093ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\render">
+      <UniqueIdentifier>{31daac4d-0706-4f16-831d-aac4d0706f16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\text">
+      <UniqueIdentifier>{a42ba585-2ca9-4c0c-8a42-ba5852ca9c0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\xml">
+      <UniqueIdentifier>{3dd5573f-8d0c-4214-83dd-5573f8d0c214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\platform">
+      <UniqueIdentifier>{3df3dcb7-d3f8-469b-83df-3dcb7d3f869b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="docs">
+      <UniqueIdentifier>{00000000-0d83-4948-8000-000000d83948}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CLAUDE.md" />
+    <None Include="CMakeLists.txt" />
+    <None Include="CMakePresets.json" />
+    <None Include="README.md" />
+    <None Include="docs\postmortem-spec.md">
+      <Filter>docs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\commands\common.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\decode.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\mitigate.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\report.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\scan.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\status.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\timeline.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\topology.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\commands\watch.cpp">
+      <Filter>src\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\cli\args.cpp">
+      <Filter>src\core\cli</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\cli\usage.cpp">
+      <Filter>src\core\cli</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\cper\guid.cpp">
+      <Filter>src\core\cper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\cper\record.cpp">
+      <Filter>src\core\cper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\cper\sections.cpp">
+      <Filter>src\core\cper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\cpu\signature.cpp">
+      <Filter>src\core\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\events\analysis.cpp">
+      <Filter>src\core\events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\events\crash_timeline.cpp">
+      <Filter>src\core\events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\events\event.cpp">
+      <Filter>src\core\events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\events\whea.cpp">
+      <Filter>src\core\events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\input\values.cpp">
+      <Filter>src\core\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\json\reader.cpp">
+      <Filter>src\core\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\json\writer.cpp">
+      <Filter>src\core\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\mca\registers.cpp">
+      <Filter>src\core\mca</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\decode_view.cpp">
+      <Filter>src\core\render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\render\event_view.cpp">
+      <Filter>src\core\render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\text\format.cpp">
+      <Filter>src\core\text</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\text\table.cpp">
+      <Filter>src\core\text</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\xml\parse.cpp">
+      <Filter>src\core\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\arch.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\console.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\cpu_info.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\cpu_topology.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\eventlog.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\file.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\os_info.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\power.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\registry.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\smbios.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\state.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\strings.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\commands\common.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\decode.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\mitigate.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\report.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\scan.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\status.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\timeline.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\topology.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\watch.hpp">
+      <Filter>src\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\cli\args.hpp">
+      <Filter>src\core\cli</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\cli\usage.hpp">
+      <Filter>src\core\cli</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\cper\guid.hpp">
+      <Filter>src\core\cper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\cper\reader.hpp">
+      <Filter>src\core\cper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\cper\record.hpp">
+      <Filter>src\core\cper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\cpu\signature.hpp">
+      <Filter>src\core\cpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\events\analysis.hpp">
+      <Filter>src\core\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\events\crash_timeline.hpp">
+      <Filter>src\core\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\events\event.hpp">
+      <Filter>src\core\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\events\whea.hpp">
+      <Filter>src\core\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\input\values.hpp">
+      <Filter>src\core\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\json\reader.hpp">
+      <Filter>src\core\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\json\writer.hpp">
+      <Filter>src\core\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\mca\registers.hpp">
+      <Filter>src\core\mca</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\decode_view.hpp">
+      <Filter>src\core\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\render\event_view.hpp">
+      <Filter>src\core\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\text\format.hpp">
+      <Filter>src\core\text</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\text\table.hpp">
+      <Filter>src\core\text</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\version.hpp">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\xml\parse.hpp">
+      <Filter>src\core\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\arch.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\console.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\cpu_info.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\cpu_topology.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\eventlog.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\file.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\os_info.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\power.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\registry.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\smbios.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\state.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\strings.hpp">
+      <Filter>src\platform</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
